@@ -53,12 +53,18 @@ public class LearnActivity extends Activity {
     }
 
     final class Board extends View {
-        static final int KIDS = 0, HUB = 1, SUBJECT = 2, PLAY = 3, END = 4;
-        static final int QUIZ = 0, ROCKET = 1, BALLOON = 2, BOSS = 3, REVIEW = 4, DAILY = 5;
-        final String[] MODES = {"Kuiz Pantas", "Roket ke Bulan", "Pecah Belon", "Lawan Si Lembap", "Ulang Kaji", "Cabaran Harian"};
+        static final int KIDS = 0, HUB = 1, SUBJECT = 2, PLAY = 3, END = 4, TOPICS = 5, PAGE = 6;
+        static final int QUIZ = 0, ROCKET = 1, BALLOON = 2, BOSS = 3, REVIEW = 4, DAILY = 5, NOTES = 6, BOARD = 7;
+        static final int TILES = 8;
+        final String[] MODES = {"Kuiz Pantas", "Roket ke Bulan", "Pecah Belon", "Lawan Si Lembap", "Ulang Kaji", "Cabaran Harian",
+                "Belajar Dulu", "Papan Permainan"};
         final String[] MODE_HINT = {"10 soalan, lawan masa", "Jawab betul, roket naik", "Pilih belon yang betul", "Kalahkan raksasa lendir",
-                "Soalan yang pernah salah", "10 soalan campur, setiap hari"};
-        final int[] MODE_COL = {0xFF38BDF8, 0xFFA78BFA, 0xFFF472B6, 0xFF4ADE80, 0xFFFBBF24, 0xFFFB7185};
+                "Soalan yang pernah salah", "10 soalan campur, setiap hari", "Nota ringkas & contoh", "Ular & Tangga, Congkak…"};
+        final int[] MODE_COL = {0xFF38BDF8, 0xFFA78BFA, 0xFFF472B6, 0xFF4ADE80, 0xFFFBBF24, 0xFFFB7185, 0xFF2DD4BF, 0xFFF97316};
+
+        // Belajar Dulu: the topics of the chosen subject, the one open and its page
+        final List<LearnNotes.Topic> topics = new ArrayList<>();
+        int topicSel, topicTop, page;
         final int[] SUBJ_COL = {0xFF38BDF8, 0xFFF59E0B, 0xFF34D399, 0xFFA78BFA};
         final String[] SUBJ_ICON = {"123", "BM", "ABC", "⚗"};
 
@@ -214,6 +220,8 @@ public class LearnActivity extends Activity {
                 case KIDS: drawKids(c); break;
                 case HUB: drawHub(c); break;
                 case SUBJECT: drawSubjects(c); break;
+                case TOPICS: drawTopics(c); break;
+                case PAGE: drawPage(c); break;
                 case PLAY: update(dt); drawPlay(c); break;
                 default: drawEnd(c);
             }
@@ -263,15 +271,15 @@ public class LearnActivity extends Activity {
                 text(c, SUBJ_ICON[s], x, H * 0.11f, H * 0.03f, SUBJ_COL[s], Paint.Align.CENTER);
                 text(c, "Tahap " + store.level(kid, s), x, H * 0.16f, H * 0.024f, 0xCCFFFFFF, Paint.Align.CENTER);
             }
-            float cw = W * 0.27f, ch = H * 0.27f, gx = W * 0.03f, x0 = (W - 3 * cw - 2 * gx) / 2;
-            for (int i = 0; i < 6; i++) {
-                int col = i % 3, row = i / 3;
+            float cw = W * 0.21f, ch = H * 0.27f, gx = W * 0.02f, x0 = (W - 4 * cw - 3 * gx) / 2;
+            for (int i = 0; i < TILES; i++) {
+                int col = i % 4, row = i / 4;
                 r.set(x0 + col * (cw + gx), H * 0.27f + row * (ch + H * 0.04f), x0 + col * (cw + gx) + cw, H * 0.27f + row * (ch + H * 0.04f) + ch);
                 boolean on = i == sel;
                 card(c, r, MODE_COL[i], on);
                 drawModeIcon(c, i, r.centerX(), r.top + ch * 0.38f, ch * 0.28f);
-                text(c, MODES[i], r.centerX(), r.top + ch * 0.75f, H * 0.04f, 0xFFFFFFFF, Paint.Align.CENTER);
-                text(c, MODE_HINT[i], r.centerX(), r.top + ch * 0.9f, H * 0.024f, 0xDDFFFFFF, Paint.Align.CENTER);
+                fit(c, MODES[i], r.centerX(), r.top + ch * 0.72f, cw * 0.9f, H * 0.038f, 0xFFFFFFFF);
+                fit(c, MODE_HINT[i], r.centerX(), r.top + ch * 0.88f, cw * 0.9f, H * 0.024f, 0xDDFFFFFF);
                 if (i == REVIEW) text(c, kid.mistakes.size() + " soalan", r.right - W * 0.015f, r.top + H * 0.05f, H * 0.024f, 0xFFFFFFFF, Paint.Align.RIGHT);
             }
             text(c, "OK main   ·   Back tukar pemain", W / 2, H * 0.96f, H * 0.026f, 0x99FFFFFF, Paint.Align.CENTER);
@@ -304,6 +312,24 @@ public class LearnActivity extends Activity {
                     g.setStyle(Paint.Style.STROKE); g.setStrokeWidth(s * 0.12f);
                     c.drawArc(cx - s * 0.6f, cy - s * 0.6f, cx + s * 0.6f, cy + s * 0.6f, 30, 300, false, g);
                     g.setStyle(Paint.Style.FILL); break;
+                case NOTES:   // an open book
+                    r.set(cx - s * 0.8f, cy - s * 0.5f, cx - s * 0.04f, cy + s * 0.6f);
+                    c.drawRoundRect(r, s * 0.08f, s * 0.08f, g);
+                    r.set(cx + s * 0.04f, cy - s * 0.5f, cx + s * 0.8f, cy + s * 0.6f);
+                    c.drawRoundRect(r, s * 0.08f, s * 0.08f, g);
+                    g.setColor(0xFF2DD4BF); g.setStrokeWidth(s * 0.07f);
+                    for (int k = 0; k < 3; k++) {
+                        float ly = cy - s * 0.25f + k * s * 0.25f;
+                        c.drawLine(cx - s * 0.65f, ly, cx - s * 0.2f, ly, g);
+                        c.drawLine(cx + s * 0.2f, ly, cx + s * 0.65f, ly, g);
+                    }
+                    break;
+                case BOARD:   // a die
+                    r.set(cx - s * 0.65f, cy - s * 0.65f, cx + s * 0.65f, cy + s * 0.65f);
+                    c.drawRoundRect(r, s * 0.2f, s * 0.2f, g);
+                    g.setColor(0xFFF97316);
+                    for (int k = -1; k <= 1; k++) c.drawCircle(cx + k * s * 0.35f, cy + k * s * 0.35f, s * 0.12f, g);
+                    break;
                 default:
                     r.set(cx - s * 0.7f, cy - s * 0.6f, cx + s * 0.7f, cy + s * 0.7f);
                     c.drawRoundRect(r, s * 0.15f, s * 0.15f, g);
@@ -323,6 +349,62 @@ public class LearnActivity extends Activity {
                 fit(c, LearnBank.SUBJECTS[s], r.centerX(), r.top + H * 0.27f, cw * 0.9f, H * 0.036f, 0xFFFFFFFF);
                 text(c, "Tahap " + store.level(kid, s) + " / 8", r.centerX(), r.top + H * 0.34f, H * 0.028f, 0xDDFFFFFF, Paint.Align.CENTER);
             }
+        }
+
+        // ================================================================ Belajar Dulu
+
+        void openTopics(int subj) {
+            subject = subj;
+            topics.clear();
+            for (LearnNotes.Topic tp0 : LearnNotes.TOPICS) if (tp0.subject == subj) topics.add(tp0);
+            // start at the first topic at or above the kid's level in this subject
+            int lv = store.level(kid, subj);
+            topicSel = 0;
+            for (int i = 0; i < topics.size(); i++) if (topics.get(i).level <= lv) topicSel = i;
+            topicTop = Math.max(0, topicSel - 5);
+            screen = TOPICS;
+        }
+
+        void drawTopics(Canvas c) {
+            text(c, "Belajar Dulu  ·  " + LearnBank.SUBJECTS[subject], W / 2, H * 0.12f, H * 0.055f, 0xFFFFFFFF, Paint.Align.CENTER);
+            text(c, "Pilih topik untuk dibaca", W / 2, H * 0.18f, H * 0.03f, 0xCCFFFFFF, Paint.Align.CENTER);
+            int lv = store.level(kid, subject), rows = 7;
+            if (topicSel < topicTop) topicTop = topicSel;
+            if (topicSel >= topicTop + rows) topicTop = topicSel - rows + 1;
+            float rh = H * 0.085f, y0 = H * 0.23f;
+            for (int i = topicTop; i < Math.min(topics.size(), topicTop + rows); i++) {
+                LearnNotes.Topic tpc = topics.get(i);
+                float y = y0 + (i - topicTop) * (rh + H * 0.012f);
+                r.set(W * 0.2f, y, W * 0.8f, y + rh);
+                boolean on = i == topicSel;
+                card(c, r, on ? SUBJ_COL[subject] : 0x33FFFFFF, on);
+                text(c, "Tahap " + tpc.level, r.left + W * 0.02f, r.centerY() + H * 0.012f, H * 0.03f, 0xDDFFFFFF, Paint.Align.LEFT);
+                text(c, tpc.title, r.left + W * 0.12f, r.centerY() + H * 0.014f, H * 0.038f, 0xFFFFFFFF, Paint.Align.LEFT);
+                text(c, tpc.level <= lv ? "✓ tahap kamu" : tpc.pages.length + " muka", r.right - W * 0.02f, r.centerY() + H * 0.012f, H * 0.026f,
+                        tpc.level <= lv ? 0xFFBBF7D0 : 0xBBFFFFFF, Paint.Align.RIGHT);
+            }
+            if (topics.isEmpty()) text(c, "Nota untuk subjek ini akan datang.", W / 2, H * 0.5f, H * 0.035f, 0xFFFFFFFF, Paint.Align.CENTER);
+            text(c, "▲▼ pilih   ·   OK baca   ·   Back kembali", W / 2, H * 0.95f, H * 0.026f, 0x99FFFFFF, Paint.Align.CENTER);
+        }
+
+        void drawPage(Canvas c) {
+            LearnNotes.Topic tpc = topics.get(topicSel);
+            String[] pg = tpc.pages[page];
+            text(c, tpc.title, W / 2, H * 0.1f, H * 0.035f, SUBJ_COL[subject], Paint.Align.CENTER);
+            r.set(W * 0.12f, H * 0.14f, W * 0.88f, H * 0.84f);
+            g.setColor(0x66000000);
+            c.drawRoundRect(r, H * 0.04f, H * 0.04f, g);
+            owl(c, W * 0.17f, H * 0.24f, H * 0.07f, LearnStore.COLORS[kidSel], 1);
+            text(c, pg[0], W / 2, H * 0.25f, H * 0.055f, 0xFFFFFFFF, Paint.Align.CENTER);
+            wrapped(c, pg[1], W / 2, H * 0.33f, W * 0.66f, H * 0.042f, 0xFFF1F5F9);
+            float dx0 = W / 2 - (tpc.pages.length - 1) * H * 0.02f;
+            for (int i = 0; i < tpc.pages.length; i++) {
+                p.setColor(i == page ? 0xFFFFFFFF : 0x55FFFFFF);
+                c.drawCircle(dx0 + i * H * 0.04f, H * 0.89f, H * (i == page ? 0.011f : 0.008f), p);
+            }
+            boolean lastPage = page == tpc.pages.length - 1;
+            text(c, lastPage ? "◀ sebelum   ·   OK cuba 10 soalan " + LearnBank.SUBJECTS[subject] + "   ·   Back senarai"
+                    : "◀▶ tukar muka   ·   Back senarai", W / 2, H * 0.95f, H * 0.026f, 0x99FFFFFF, Paint.Align.CENTER);
         }
 
         // ================================================================ playing
@@ -564,11 +646,16 @@ public class LearnActivity extends Activity {
                     return true;
                 case HUB:
                     if (back) { screen = KIDS; return true; }
-                    if (dx != 0) sel = (sel / 3) * 3 + ((sel % 3) + dx + 3) % 3;
-                    if (dy != 0) sel = (sel + 3) % 6;
+                    if (dx != 0) sel = (sel / 4) * 4 + ((sel % 4) + dx + 4) % 4;
+                    if (dy != 0) sel = (sel + 4) % TILES;
+                    if (ok && sel == BOARD) {
+                        try { getContext().startActivity(new android.content.Intent(getContext(), BoardActivity.class)); } catch (RuntimeException ignored) { }
+                        return true;
+                    }
                     if (ok) {
                         mode = sel;
-                        if (mode == DAILY || mode == REVIEW) {
+                        if (mode == NOTES) { screen = SUBJECT; sel = 0; }
+                        else if (mode == DAILY || mode == REVIEW) {
                             if (mode == REVIEW && kid.mistakes.isEmpty()) { endLine = "Tiada soalan untuk diulang kaji. Hebat!"; mode = REVIEW; screen = END; rights = 0; total = 0; earned = 0; return true; }
                             startRound();
                         } else { screen = SUBJECT; sel = 0; }
@@ -577,8 +664,23 @@ public class LearnActivity extends Activity {
                 case SUBJECT:
                     if (back) { screen = HUB; sel = mode; return true; }
                     if (dx != 0) sel = (sel + dx + 4) % 4;
+                    if (ok && mode == NOTES) { openTopics(sel); return true; }
                     if (ok) { subject = sel; startRound(); }
                     return true;
+                case TOPICS:
+                    if (back) { screen = SUBJECT; sel = subject; return true; }
+                    if (topics.isEmpty()) return true;
+                    if (dy != 0) topicSel = Math.max(0, Math.min(topics.size() - 1, topicSel + dy));
+                    if (ok) { page = 0; screen = PAGE; }
+                    return true;
+                case PAGE: {
+                    if (back) { screen = TOPICS; return true; }
+                    int pages = topics.get(topicSel).pages.length;
+                    if (dx != 0) page = Math.max(0, Math.min(pages - 1, page + dx));
+                    if (ok && page < pages - 1) page++;
+                    else if (ok) { mode = QUIZ; startRound(); }
+                    return true;
+                }
                 case PLAY:
                     if (back) { screen = HUB; sel = mode; return true; }
                     if (feedback) return true;

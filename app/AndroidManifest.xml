@@ -150,6 +150,15 @@
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen" />
 
+        <!-- Fork extra: board games (BoardActivity), in All Apps. -->
+        <activity
+            android:name=".BoardActivity"
+            android:process=":home"
+            android:exported="false"
+            android:taskAffinity="io.freemytv.board"
+            android:excludeFromRecents="true"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen" />
         <!-- Fork extra: Kelas Bijak learning games (LearnActivity), in All Apps. -->
         <activity
             android:name=".LearnActivity"
