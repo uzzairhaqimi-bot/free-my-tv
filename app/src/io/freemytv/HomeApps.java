@@ -66,6 +66,8 @@ final class HomeApps {
     static final int EXTRAS = 10;
     /** Fork extra: the retro games (RetroActivity). */
     static final int RETRO = 11;
+    /** Fork extra: Kelas Bijak learning games (LearnActivity). */
+    static final int LEARN = 12;
     /** Image size of each card (16:9; on screen it shows up to ~330 px wide). */
     static final int TILE_W = 384, TILE_H = 216;
 
@@ -606,6 +608,7 @@ final class HomeApps {
         items.add(special(c, SETTINGS, "freemytv-settings", "Free My TV", "sparkles"));
         items.add(special(c, EXTRAS, "freemytv-extras", "Video & LED", "lightbulb"));
         items.add(special(c, RETRO, "freemytv-retro", "Retro Arked", "gamepad"));
+        items.add(special(c, LEARN, "freemytv-learn", "Kelas Bijak", "sparkles"));
         return items;
     }
 
@@ -653,6 +656,9 @@ final class HomeApps {
                 break;
             case RETRO:
                 intent = new Intent().setComponent(new ComponentName(a, RetroActivity.class));
+                break;
+            case LEARN:
+                intent = new Intent().setComponent(new ComponentName(a, LearnActivity.class));
                 break;
             case ANDROID_SETTINGS:
                 intent = new Intent(Settings.ACTION_SETTINGS);
