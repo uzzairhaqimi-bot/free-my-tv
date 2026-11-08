@@ -33,6 +33,12 @@ final class Extras {
     boolean quotes = true;
     /** Where the motivational line goes: 0 big and bold under the clock (in place of the prices), 1 small at the top. */
     int quoteStyle;
+    /** Mod Jimat: with the video on, the LED glow redraws less often. */
+    boolean jimat = true;
+    /** Back on the home screen after another app: stop the apps left in the background (Lighten), at most every 5 min. */
+    boolean autoRingan;
+    /** Set by the home screen: Mod Jimat is in effect now (read by EdgeLight). */
+    static volatile boolean jimatNow;
     /** The line shown big on the home screen now, and when it changed (HomeView fades it in); null: none. */
     static volatile String motto;
     static volatile long mottoAt;
@@ -72,6 +78,8 @@ final class Extras {
             e.musicVol = clamp(o.optInt("musicVol", 1), 2);
             e.quotes = o.optBoolean("quotes", true);
             e.quoteStyle = clamp(o.optInt("quoteStyle", 0), 1);
+            e.jimat = o.optBoolean("jimat", true);
+            e.autoRingan = o.optBoolean("autoRingan", false);
             e.gameMusic = clamp(o.optInt("gameMusic", 0), 3);
             e.gameMusicLink = o.optString("gameMusicLink", e.gameMusicLink);
         } catch (Exception ignored) {
@@ -96,6 +104,8 @@ final class Extras {
             o.put("musicVol", musicVol);
             o.put("quotes", quotes);
             o.put("quoteStyle", quoteStyle);
+            o.put("jimat", jimat);
+            o.put("autoRingan", autoRingan);
             o.put("gameMusic", gameMusic);
             o.put("gameMusicLink", gameMusicLink == null ? "" : gameMusicLink);
             File tmp = new File(c.getFilesDir(), "extras.json.tmp");

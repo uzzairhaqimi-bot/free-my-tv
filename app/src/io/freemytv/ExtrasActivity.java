@@ -136,6 +136,12 @@ public class ExtrasActivity extends Activity {
         }, this::editMusic);
         row("Kelantangan muzik", () -> VOLS[x.musicVol], () -> x.musicVol = (x.musicVol + 1) % 3);
 
+        header("Jimat & Ringan");
+        row("⚡ Ringankan stick sekarang", () -> "Tutup aplikasi di latar, kosongkan memori",
+                () -> startActivity(new Intent(this, RinganActivity.class)));
+        row("Mod Jimat (bila video latar hidup)", () -> x.jimat ? "Hidup" : "Mati", () -> x.jimat = !x.jimat);
+        row("Auto ringankan bila kembali ke skrin utama", () -> x.autoRingan ? "Hidup" : "Mati", () -> x.autoRingan = !x.autoRingan);
+
         header("Muzik Dalam Permainan");
         row("Jenis muzik", () -> GAME_MUSIC[x.gameMusic], () -> x.gameMusic = (x.gameMusic + 1) % GAME_MUSIC.length);
         row("Pautan lagu permainan", () -> {

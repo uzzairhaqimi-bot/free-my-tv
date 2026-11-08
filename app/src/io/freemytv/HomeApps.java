@@ -70,6 +70,8 @@ final class HomeApps {
     static final int LEARN = 12;
     /** Fork extra: board games (BoardActivity). */
     static final int BOARD = 13;
+    /** Fork extra: "Ringankan Stick" (RinganActivity). */
+    static final int RINGAN = 14;
     /** Image size of each card (16:9; on screen it shows up to ~330 px wide). */
     static final int TILE_W = 384, TILE_H = 216;
 
@@ -612,6 +614,7 @@ final class HomeApps {
         items.add(special(c, RETRO, "freemytv-retro", "Retro Arked", "gamepad"));
         items.add(special(c, LEARN, "freemytv-learn", "Kelas Bijak", "sparkles"));
         items.add(special(c, BOARD, "freemytv-board", "Papan Permainan", "gamepad"));
+        items.add(special(c, RINGAN, "freemytv-ringan", "Ringankan Stick", "sparkles"));
         return items;
     }
 
@@ -665,6 +668,9 @@ final class HomeApps {
                 break;
             case BOARD:
                 intent = new Intent().setComponent(new ComponentName(a, BoardActivity.class));
+                break;
+            case RINGAN:
+                intent = new Intent().setComponent(new ComponentName(a, RinganActivity.class));
                 break;
             case ANDROID_SETTINGS:
                 intent = new Intent(Settings.ACTION_SETTINGS);

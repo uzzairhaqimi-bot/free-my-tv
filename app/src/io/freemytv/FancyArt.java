@@ -33,6 +33,7 @@ final class FancyArt {
             case "freemytv-board": kind = 1; break;
             case "freemytv-retro": kind = 2; break;
             case "freemytv-extras": kind = 3; break;
+            case "freemytv-ringan": kind = 4; break;
             default: return null;
         }
         Bitmap b = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
@@ -43,10 +44,11 @@ final class FancyArt {
                 {0xFFEA580C, 0xFF831843},   // board: orange to wine
                 {0xFF2E1065, 0xFF020617},   // retro: night purple
                 {0xFF1D4ED8, 0xFF701A75},   // extras: blue to magenta
+                {0xFF0F766E, 0xFF14532D},   // ringan: teal to green
         };
         p.setShader(new LinearGradient(0, 0, w * 0.4f, h, grads[kind][0], grads[kind][1], Shader.TileMode.CLAMP));
         c.drawRect(0, 0, w, h, p);
-        int[] glow = {0x7034D399, 0x80FDE047, 0x90F472B6, 0x8022D3EE};
+        int[] glow = {0x7034D399, 0x80FDE047, 0x90F472B6, 0x8022D3EE, 0x80A3E635};
         p.setShader(new RadialGradient(w * 0.5f, h * 0.5f, w * 0.45f, glow[kind], 0, Shader.TileMode.CLAMP));
         c.drawRect(0, 0, w, h, p);
         p.setShader(null);
@@ -60,7 +62,8 @@ final class FancyArt {
             case 0: owlTile(c, p, cx, cy, s, w, h); break;
             case 1: boardTile(c, p, cx, cy, s, w, h); break;
             case 2: retroTile(c, p, cx, cy, s, w, h); break;
-            default: extrasTile(c, p, cx, cy, s, w, h);
+            case 3: extrasTile(c, p, cx, cy, s, w, h); break;
+            default: ringanTile(c, p, cx, cy, s);
         }
         // glass gloss on the top half
         p.setShader(new LinearGradient(0, 0, 0, h * 0.55f, 0x30FFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP));
@@ -244,6 +247,32 @@ final class FancyArt {
             p.setColor(rgb[i % 7]);
             c.drawCircle(w * (0.05f + i * 0.053f), h * 0.94f, h * 0.012f, p);
         }
+    }
+
+    /** Ringankan Stick: a gauge with its needle low and a lightning bolt. */
+    private static void ringanTile(Canvas c, Paint p, float cx, float cy, float s) {
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(s * 0.16f);
+        p.setStrokeCap(Paint.Cap.ROUND);
+        p.setColor(0x44FFFFFF);
+        c.drawArc(cx - s, cy - s * 0.8f, cx + s, cy + s * 1.2f, 180, 180, false, p);
+        p.setColor(0xFF4ADE80);
+        c.drawArc(cx - s, cy - s * 0.8f, cx + s, cy + s * 1.2f, 180, 60, false, p);
+        p.setStrokeWidth(s * 0.08f);
+        p.setColor(0xFFFFFFFF);
+        c.drawLine(cx, cy + s * 0.2f, cx - s * 0.65f, cy - s * 0.2f, p);
+        p.setStrokeCap(Paint.Cap.BUTT);
+        p.setStyle(Paint.Style.FILL);
+        Path bolt = new Path();
+        bolt.moveTo(cx + s * 0.25f, cy - s * 0.9f);
+        bolt.lineTo(cx - s * 0.05f, cy - s * 0.1f);
+        bolt.lineTo(cx + s * 0.15f, cy - s * 0.1f);
+        bolt.lineTo(cx - s * 0.05f, cy + s * 0.6f);
+        bolt.lineTo(cx + s * 0.4f, cy - s * 0.3f);
+        bolt.lineTo(cx + s * 0.18f, cy - s * 0.3f);
+        bolt.close();
+        p.setColor(0xFFFDE047);
+        c.drawPath(bolt, p);
     }
 
     private static int darker(int c) {

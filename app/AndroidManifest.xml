@@ -150,6 +150,14 @@
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen" />
 
+        <!-- Fork extra: "Ringankan Stick" (RinganActivity), in All Apps and Video & LED. -->
+        <activity
+            android:name=".RinganActivity"
+            android:process=":home"
+            android:exported="false"
+            android:taskAffinity="io.freemytv.ringan"
+            android:excludeFromRecents="true"
+            android:theme="@android:style/Theme.DeviceDefault.Dialog.NoActionBar" />
         <!-- Fork extra: board games (BoardActivity), in All Apps. -->
         <activity
             android:name=".BoardActivity"

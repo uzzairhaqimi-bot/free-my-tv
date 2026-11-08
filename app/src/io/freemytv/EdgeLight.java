@@ -134,6 +134,6 @@ final class EdgeLight extends View {
         cv.drawPath(path, wide);
         cv.drawPath(path, mid);
         cv.drawPath(path, core);
-        if (running) postInvalidateDelayed(33);
+        if (running) postInvalidateDelayed(Extras.jimatNow ? 120 : 33);   // Mod Jimat: about 8 frames a second
     }
 }

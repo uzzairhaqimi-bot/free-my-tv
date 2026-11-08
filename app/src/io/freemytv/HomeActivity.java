@@ -89,6 +89,7 @@ public class HomeActivity extends Activity {
     private android.widget.TextView quote;
     private final android.os.Handler extrasHandler = new android.os.Handler(android.os.Looper.getMainLooper());
     private int videoEvery;
+    private long lastRingan = -10 * 60_000L;
 
     /** Every minute: a new line; every `videoEvery` minutes: the next video. */
     private final Runnable minute = new Runnable() {
@@ -132,6 +133,14 @@ public class HomeActivity extends Activity {
                 home.extrasChanged();
             }
             videoEvery = x.videoEvery;
+            Extras.jimatNow = x.jimat && video;
+            long now = SystemClock.elapsedRealtime();
+            if (x.autoRingan && now - lastRingan > 5 * 60_000L) {   // back from an app: close what was left running
+                lastRingan = now;
+                Lighten.run(this, (msg, closed, freed) -> {
+                    if (closed > 0) android.widget.Toast.makeText(this, "⚡ " + closed + " aplikasi ditutup · +" + freed + " MB RAM", android.widget.Toast.LENGTH_SHORT).show();
+                });
+            }
             if (x.music) music.play(x.musicLink, x.musicVolume()); else music.stop();
             boolean big = x.quotes && x.quoteStyle == 0;
             if (big && Extras.motto == null) setMotto(Quotes.next());
