@@ -356,6 +356,74 @@ final class FancyArt {
                 }
                 break;
             }
+            case 6: {   // a racing car from above, with speed lines
+                p.setColor(0xFF374151);
+                c.drawRoundRect(cx - s * 1.1f, cy - s * 0.55f, cx + s * 1.1f, cy + s * 0.55f, s * 0.2f, s * 0.2f, p);
+                p.setColor(0xFFFFFFFF);
+                for (int k = 0; k < 4; k++) c.drawRect(cx - s + k * s * 0.55f, cy - s * 0.03f, cx - s * 0.75f + k * s * 0.55f, cy + s * 0.03f, p);
+                c.save();
+                c.rotate(-15, cx, cy);
+                p.setColor(0xFF111111);
+                c.drawRect(cx - s * 0.5f, cy - s * 0.42f, cx - s * 0.2f, cy + s * 0.42f, p);
+                c.drawRect(cx + s * 0.25f, cy - s * 0.42f, cx + s * 0.55f, cy + s * 0.42f, p);
+                p.setShader(new LinearGradient(0, cy - s * 0.3f, 0, cy + s * 0.3f, 0xFFF87171, 0xFFB91C1C, Shader.TileMode.CLAMP));
+                c.drawRoundRect(cx - s * 0.75f, cy - s * 0.3f, cx + s * 0.75f, cy + s * 0.3f, s * 0.15f, s * 0.15f, p);
+                p.setShader(null);
+                p.setColor(0xCC1E293B);
+                c.drawRoundRect(cx, cy - s * 0.2f, cx + s * 0.35f, cy + s * 0.2f, s * 0.06f, s * 0.06f, p);
+                c.restore();
+                break;
+            }
+            case 7: {   // a mouse with a grain of rice, a cat's ears behind
+                p.setColor(0xFFF97316);
+                Path ears = new Path();
+                ears.moveTo(cx + s * 0.3f, cy - s * 0.3f); ears.lineTo(cx + s * 0.5f, cy - s * 0.95f); ears.lineTo(cx + s * 0.75f, cy - s * 0.4f); ears.close();
+                ears.moveTo(cx + s * 0.85f, cy - s * 0.4f); ears.lineTo(cx + s * 1.05f, cy - s * 0.95f); ears.lineTo(cx + s * 1.2f, cy - s * 0.3f); ears.close();
+                c.drawPath(ears, p);
+                p.setColor(0xFF9CA3AF);
+                c.drawOval(cx - s * 0.9f, cy - s * 0.2f, cx + s * 0.2f, cy + s * 0.6f, p);
+                c.drawCircle(cx + s * 0.15f, cy + s * 0.1f, s * 0.32f, p);
+                p.setColor(0xFFF9A8D4);
+                c.drawCircle(cx - s * 0.05f, cy - s * 0.25f, s * 0.18f, p);
+                c.drawCircle(cx + s * 0.35f, cy - s * 0.22f, s * 0.18f, p);
+                p.setColor(0xFF111827);
+                c.drawCircle(cx + s * 0.25f, cy + s * 0.05f, s * 0.06f, p);
+                p.setColor(0xFFFFFBEB);
+                c.drawOval(cx + s * 0.5f, cy + s * 0.35f, cx + s * 0.85f, cy + s * 0.52f, p);
+                break;
+            }
+            case 8: {   // a ship and a space jellyfish
+                p.setColor(0xFF22D3EE);
+                c.drawArc(cx - s * 0.6f, cy - s, cx + s * 0.6f, cy, 180, 180, true, p);
+                c.drawRect(cx - s * 0.6f, cy - s * 0.52f, cx + s * 0.6f, cy - s * 0.4f, p);
+                p.setStrokeWidth(s * 0.08f);
+                for (int k = 0; k < 4; k++) c.drawLine(cx - s * 0.45f + k * s * 0.3f, cy - s * 0.4f, cx - s * 0.45f + k * s * 0.3f, cy, p);
+                Path ship = new Path();
+                ship.moveTo(cx, cy + s * 0.15f); ship.lineTo(cx + s * 0.5f, cy + s); ship.lineTo(cx - s * 0.5f, cy + s); ship.close();
+                p.setColor(0xFFFACC15);
+                c.drawPath(ship, p);
+                p.setColor(0xFFFDE047);
+                c.drawRect(cx - s * 0.03f, cy - s * 0.2f, cx + s * 0.03f, cy + s * 0.05f, p);
+                break;
+            }
+            case 9: {   // a silat fighter in a tanjak
+                p.setStrokeCap(Paint.Cap.ROUND);
+                p.setStrokeWidth(s * 0.14f);
+                p.setColor(0xFF1F2937);
+                c.drawLine(cx, cy + s * 0.25f, cx - s * 0.35f, cy + s, p); c.drawLine(cx, cy + s * 0.25f, cx + s * 0.45f, cy + s * 0.9f, p);
+                c.drawLine(cx, cy - s * 0.4f, cx, cy + s * 0.25f, p);
+                p.setColor(0xFFD6A77A);
+                c.drawLine(cx, cy - s * 0.3f, cx + s * 0.75f, cy - s * 0.35f, p);
+                c.drawLine(cx, cy - s * 0.3f, cx - s * 0.4f, cy, p);
+                c.drawCircle(cx, cy - s * 0.6f, s * 0.22f, p);
+                p.setColor(0xFFEAB308);
+                c.drawRect(cx - s * 0.25f, cy + s * 0.1f, cx + s * 0.25f, cy + s * 0.32f, p);
+                Path tj = new Path();
+                tj.moveTo(cx - s * 0.28f, cy - s * 0.7f); tj.lineTo(cx + s * 0.1f, cy - s * 1.15f); tj.lineTo(cx + s * 0.28f, cy - s * 0.7f); tj.close();
+                c.drawPath(tj, p);
+                p.setStrokeCap(Paint.Cap.BUTT);
+                break;
+            }
             default: {   // letter tiles in quiz colours
                 String w = "KATA";
                 int[] col = {0xFF22C55E, 0xFFEAB308, 0xFF64748B, 0xFF22C55E};

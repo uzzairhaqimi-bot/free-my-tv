@@ -48,6 +48,8 @@ final class Party {
     private ServerSocket server;
     private final String token;
     private volatile boolean running;
+    /** When true the first phone to join becomes player 1 (sharing it with the remote). */
+    volatile boolean phoneFirst;
 
     Party() {
         for (int i = 0; i < MAX; i++) players[i] = new Player(i);
@@ -164,7 +166,7 @@ final class Party {
                     synchronized (p) {
                         p.sock = null;
                         p.phone = false;
-                        p.joined = false;
+                        p.joined = p.seat == 0;   // seat 0 stays: the remote is still there
                         p.x = p.y = 0;
                         p.a = p.b = false;
                     }
@@ -175,6 +177,7 @@ final class Party {
     }
 
     private synchronized Player seat() {
+        if (phoneFirst && !players[0].phone) { players[0].phone = true; return players[0]; }
         for (int i = 1; i < MAX; i++) if (!players[i].joined) { players[i].joined = true; return players[i]; }
         return null;
     }

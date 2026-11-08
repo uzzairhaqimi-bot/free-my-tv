@@ -60,17 +60,20 @@ public class BoardActivity extends Activity {
 
     static final class Board extends View {
         static final int MENU = 0, SETUP = 1, PLAY = 2, END = 3;
-        static final int HARTA = 0, ULAR = 1, CONGKAK = 2, JUARA = 3, TEKA = 4, KANCIL = 5;
-        static final String[] NAMES = {"Hartanah Malaysia", "Ular & Tangga Bijak", "Congkak", "Siapa Juara?", "Teka Kata", "Sang Kancil"};
+        static final int HARTA = 0, ULAR = 1, CONGKAK = 2, JUARA = 3, TEKA = 4, KANCIL = 5, ARKED = 6;
+        static final String[] NAMES = {"Hartanah Malaysia", "Ular & Tangga Bijak", "Congkak", "Siapa Juara?", "Teka Kata", "Sang Kancil",
+                Arked4.NAMES[0], Arked4.NAMES[1], Arked4.NAMES[2], Arked4.NAMES[3]};
         static final String[] HINTS = {"Beli bandar, kutip sewa, jadi terkaya", "Jawab soalan untuk naik tangga",
                 "Permainan tradisional, kumpul biji terbanyak", "Kuiz TV, telefon jadi butang jawapan", "Teka perkataan 5 huruf, 6 cubaan",
-                "Pengembaraan 5 dunia, 1-4 pemain skrin pisah"};
-        static final int[] COLS = {0xFF22C55E, 0xFFF97316, 0xFFB45309, 0xFF8B5CF6, 0xFF0EA5E9, 0xFF65A30D};
+                "Pengembaraan 5 dunia, 1-4 pemain skrin pisah", Arked4.HINTS[0], Arked4.HINTS[1], Arked4.HINTS[2], Arked4.HINTS[3]};
+        static final int[] COLS = {0xFF22C55E, 0xFFF97316, 0xFFB45309, 0xFF8B5CF6, 0xFF0EA5E9, 0xFF65A30D,
+                0xFFEF4444, 0xFFA16207, 0xFF6366F1, 0xFFEA580C};
         static final int[] PCOL = {0xFF22D3EE, 0xFFFF4FD8, 0xFFFACC15, 0xFF4ADE80};
 
         final Party party = new Party();
         final GameSound sound = new GameSound();
         final Kancil kancil = new Kancil(party, sound);
+        final Arked4 arked = new Arked4(party, sound);
         final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG), g = new Paint(Paint.ANTI_ALIAS_FLAG);
         final TextPaint tp = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         final RectF r = new RectF();
@@ -141,8 +144,8 @@ public class BoardActivity extends Activity {
             float dt = last == 0 ? 0 : Math.min(0.05f, (now - last) / 1000f);
             last = now;
             t += dt;
-            sound.mood(screen == PLAY && (game == JUARA || game == KANCIL) ? GameMusic.SEMANGAT : GameMusic.SANTAI);
-            if (screen != PLAY || game != KANCIL) aurora.draw(c, W, H, t);   // Kancil draws its own world
+            sound.mood(screen == PLAY && (game == JUARA || game >= KANCIL) ? GameMusic.SEMANGAT : GameMusic.SANTAI);
+            if (screen != PLAY || game < KANCIL) aurora.draw(c, W, H, t);   // Kancil and the arcade games draw their own
             if (screen == MENU) drawMenu(c);
             else if (screen == SETUP) drawSetup(c);
             else if (screen == PLAY) {
@@ -154,6 +157,10 @@ public class BoardActivity extends Activity {
                     kancil.update(dt);
                     kancil.draw(c, W, H, t);
                     if (kancil.over) endGame(kancil.result);
+                } else if (game >= ARKED) {
+                    arked.update(dt);
+                    arked.draw(c, W, H, t);
+                    if (arked.over) endGame(arked.result);
                 }
                 else teka.draw(c, dt);
             } else drawEnd(c);
@@ -169,23 +176,24 @@ public class BoardActivity extends Activity {
         }
 
         void drawMenu(Canvas c) {
-            text(c, "Papan Permainan", W / 2, H * 0.13f, H * 0.075f, 0xFFFFFFFF, Paint.Align.CENTER);
-            text(c, "Untuk satu keluarga, satu remote", W / 2, H * 0.2f, H * 0.032f, 0xBBFFFFFF, Paint.Align.CENTER);
-            int n = NAMES.length;
-            float cw = W * 0.145f, gap = W * 0.015f, x0 = (W - n * cw - (n - 1) * gap) / 2;
+            text(c, "Papan Permainan", W / 2, H * 0.11f, H * 0.065f, 0xFFFFFFFF, Paint.Align.CENTER);
+            text(c, "Untuk satu keluarga: remote + telefon, sampai 4 pemain", W / 2, H * 0.17f, H * 0.03f, 0xBBFFFFFF, Paint.Align.CENTER);
+            int n = NAMES.length, perRow = 5;
+            float cw = W * 0.17f, gap = W * 0.015f, x0 = (W - perRow * cw - (perRow - 1) * gap) / 2, ch = H * 0.31f;
             for (int i = 0; i < n; i++) {
-                r.set(x0 + i * (cw + gap), H * 0.3f, x0 + i * (cw + gap) + cw, H * 0.78f);
+                float top = H * (0.25f + (i / perRow) * 0.335f), left = x0 + (i % perRow) * (cw + gap);
+                r.set(left, top, left + cw, top + ch);
                 boolean on = i == sel;
                 if (on) { r.offset(0, -H * 0.02f); float gr = W * (0.005f + 0.003f * (float) Math.sin(t * 3)); r.inset(-gr, -gr); }
                 card(c, r, COLS[i], on);
-                drawIcon(c, i, r.centerX(), r.top + H * 0.14f + (on ? (float) Math.sin(t * 4) * H * 0.01f : 0), H * 0.07f);
-                fit(c, NAMES[i], r.centerX(), r.top + H * 0.29f, cw * 0.9f, H * 0.034f, 0xFFFFFFFF);
-                wrapped(c, HINTS[i], r.left + cw * 0.08f, r.top + H * 0.34f, cw * 0.84f, H * 0.024f, 0xDDFFFFFF, Layout.Alignment.ALIGN_CENTER);
+                drawIcon(c, i, r.centerX(), r.top + H * 0.1f + (on ? (float) Math.sin(t * 4) * H * 0.01f : 0), H * 0.055f);
+                fit(c, NAMES[i], r.centerX(), r.top + H * 0.2f, cw * 0.9f, H * 0.032f, 0xFFFFFFFF);
+                wrapped(c, HINTS[i], r.left + cw * 0.08f, r.top + H * 0.23f, cw * 0.84f, H * 0.021f, 0xDDFFFFFF, Layout.Alignment.ALIGN_CENTER);
             }
-            text(c, "◀▶ pilih   ·   OK main   ·   Back keluar", W / 2, H * 0.92f, H * 0.028f, 0x99FFFFFF, Paint.Align.CENTER);
+            text(c, "◀▶▲▼ pilih   ·   OK main   ·   Back keluar", W / 2, H * 0.965f, H * 0.026f, 0x99FFFFFF, Paint.Align.CENTER);
         }
 
-        final android.graphics.Bitmap[] icons = new android.graphics.Bitmap[6];
+        final android.graphics.Bitmap[] icons = new android.graphics.Bitmap[10];
 
         /** The game's picture, drawn once at this screen's size; s is half its height. */
         void drawIcon(Canvas c, int i, float cx, float cy, float s) {
@@ -200,7 +208,7 @@ public class BoardActivity extends Activity {
 
         void drawSetup(Canvas c) {
             text(c, NAMES[game], W / 2, H * 0.14f, H * 0.065f, 0xFFFFFFFF, Paint.Align.CENTER);
-            if (game == JUARA || game == KANCIL) {
+            if (game == JUARA || game >= KANCIL) {
                 drawJuaraLobby(c);
                 return;
             }
@@ -229,6 +237,7 @@ public class BoardActivity extends Activity {
             else if (game == CONGKAK) congkak.start();
             else if (game == JUARA) juara.start();
             else if (game == KANCIL) kancil.start();
+            else if (game >= ARKED) arked.start(game - ARKED, W, H);
             else teka.start(true, true);
         }
 
@@ -838,11 +847,16 @@ public class BoardActivity extends Activity {
                 float y = H * (0.36f + i * 0.1f);
                 g.setColor(pl.joined ? pl.color() : 0x33FFFFFF);
                 c.drawCircle(W * 0.58f, y - H * 0.012f, H * 0.025f, g);
-                text(c, "Pemain " + (i + 1) + " · " + (i == 0 ? "Remote TV" : pl.joined ? "Telefon" : "Menunggu…"), W * 0.62f, y, H * 0.032f,
+                String who = i == 0 ? (pl.phone ? "Remote + Telefon" : party.phoneFirst ? "Remote (imbas QR untuk telefon)" : "Remote TV")
+                        : pl.joined ? "Telefon" : "Menunggu…";
+                text(c, "Pemain " + (i + 1) + " · " + who, W * 0.62f, y, H * 0.032f,
                         pl.joined ? 0xFFFFFFFF : 0x66FFFFFF, Paint.Align.LEFT);
             }
-            text(c, game == KANCIL ? "Remote: ◀▶ lari, OK lompat  ·  Telefon: kayu bedik lari, butang A lompat  ·  2 pemain = skrin atas/bawah"
-                    : "Jawapan di 4 arah. Remote: tekan anak panah ke arah jawapan. Telefon: tolak kayu bedik ke arah jawapan.", W / 2, H * 0.82f, H * 0.028f, 0xFF67E8F9, Paint.Align.CENTER);
+            text(c, game >= ARKED ? Arked4.HELP[game - ARKED] + "  ·  Tempat kosong dimain oleh TV"
+                    : game == KANCIL ? "Remote: ◀▶ lari, OK lompat  ·  Telefon: kayu bedik lari, butang A lompat  ·  2 pemain = skrin atas/bawah"
+                    : "Remote: ◀▶▲▼ pilih, OK jawab  ·  Telefon: kayu bedik pilih, A jawab", W / 2, H * 0.82f, H * 0.028f, 0xFF67E8F9, Paint.Align.CENTER);
+            text(c, "◀▶  Pemain 1 guna telefon juga: " + (party.phoneFirst ? "YA" : "TIDAK"), W * 0.62f, H * 0.76f, H * 0.03f,
+                    party.phoneFirst ? 0xFFFDE047 : 0xBBFFFFFF, Paint.Align.LEFT);
             text(c, "OK untuk mula", W / 2, H * 0.9f, H * 0.04f, 0xFF4ADE80, Paint.Align.CENTER);
         }
 
@@ -858,7 +872,8 @@ public class BoardActivity extends Activity {
             static final int ROUNDS = 12;
             final int[] score = new int[4], choice = new int[4], streak = new int[4], gained = new int[4];
             final long[] at = new long[4], aimAt = new long[4];
-            final int[] lastA = new int[4], aim = new int[4];   // aim: where a phone's stick points now
+            final int[] lastA = new int[4], aim = new int[4];   // aim: each player's cursor on the 2×2 answers
+            final boolean[] stickIdle = new boolean[4];
             final List<LearnBank.Q> qs = new ArrayList<>();
             int qNo;
             long start;
@@ -882,7 +897,7 @@ public class BoardActivity extends Activity {
             void next() {
                 q = qs.get(qNo);
                 for (int i = 0; i < 4; i++) {
-                    choice[i] = -1; at[i] = 0; aim[i] = -1; gained[i] = 0;
+                    choice[i] = -1; at[i] = 0; aim[i] = 0; gained[i] = 0; stickIdle[i] = false;
                     lastA[i] = party.players[i].aPresses;
                 }
                 reveal = false;
@@ -907,14 +922,18 @@ public class BoardActivity extends Activity {
             void update() {
                 long now = SystemClock.uptimeMillis();
                 if (!reveal) {
-                    for (int i = 1; i < Party.MAX; i++) {
+                    for (int i = 0; i < Party.MAX; i++) {
                         Party.Player pl = party.players[i];
-                        if (!pl.joined || choice[i] >= 0) continue;
-                        // a phone answers by pushing the stick towards an answer and holding it there a moment,
-                        // or with A on the last direction pushed
-                        int o = dirToOption(pl.x, pl.y);
-                        if (o >= 0 && o != aim[i]) { aim[i] = o; aimAt[i] = now; }
-                        if (o >= 0 && o == aim[i] && now - aimAt[i] > 400) lock(i, o, now);
+                        if (!pl.joined || !pl.phone || choice[i] >= 0) continue;
+                        // the stick moves the cursor one answer per push (like the remote's arrows), A answers
+                        boolean idle = Math.abs(pl.x) < 0.35f && Math.abs(pl.y) < 0.35f;
+                        if (!idle && stickIdle[i]) {
+                            if (Math.abs(pl.x) > Math.abs(pl.y)) aim[i] = move(aim[i], pl.x > 0 ? KeyEvent.KEYCODE_DPAD_RIGHT : KeyEvent.KEYCODE_DPAD_LEFT);
+                            else aim[i] = move(aim[i], pl.y > 0 ? KeyEvent.KEYCODE_DPAD_DOWN : KeyEvent.KEYCODE_DPAD_UP);
+                            party.buzz(i, 12);
+                            sound.sfx(GameMusic.SFX_TICK);
+                        }
+                        stickIdle[i] = idle;
                         if (pl.aPresses != lastA[i]) { lastA[i] = pl.aPresses; lock(i, aim[i], now); }
                     }
                     boolean all = true;
@@ -946,12 +965,21 @@ public class BoardActivity extends Activity {
                 }
             }
 
-            /** The remote: each arrow is the answer drawn on that side, and answers at once. */
+            /** Moves a cursor on the 2×2 grid: A B on top, C D below. */
+            int move(int at, int k) {
+                int n = q.options.length, col = at % 2, row = at / 2;
+                if (k == KeyEvent.KEYCODE_DPAD_LEFT || k == KeyEvent.KEYCODE_DPAD_RIGHT) col = 1 - col;
+                if (k == KeyEvent.KEYCODE_DPAD_UP || k == KeyEvent.KEYCODE_DPAD_DOWN) row = 1 - row;
+                int o = row * 2 + col;
+                return o < n ? o : at;
+            }
+
+            /** The remote: arrows move player 1's cursor, OK answers. */
             void key(int k, boolean ok) {
-                if (reveal) return;
-                int o = k == KeyEvent.KEYCODE_DPAD_UP ? 0 : k == KeyEvent.KEYCODE_DPAD_RIGHT ? 1
-                        : k == KeyEvent.KEYCODE_DPAD_DOWN ? 2 : k == KeyEvent.KEYCODE_DPAD_LEFT ? 3 : -1;
-                lock(0, o, SystemClock.uptimeMillis());
+                if (reveal || choice[0] >= 0) return;
+                if (ok) { lock(0, aim[0], SystemClock.uptimeMillis()); return; }
+                int o = move(aim[0], k);
+                if (o != aim[0]) { aim[0] = o; sound.sfx(GameMusic.SFX_TICK); }
             }
 
             final RectF[] slot = {new RectF(), new RectF(), new RectF(), new RectF()};
@@ -989,39 +1017,39 @@ public class BoardActivity extends Activity {
                 c.drawArc(r, -90, 360 * left, false, g);
                 g.setStyle(Paint.Style.FILL);
                 if (!reveal) text(c, String.valueOf((int) Math.ceil(left * 20)), tcx, tcy + H * 0.015f, H * 0.04f, 0xFFFFFFFF, Paint.Align.CENTER);
-                // the question in the middle
-                float qs0 = 0.85f + 0.15f * pop;
-                r.set(W * 0.3f, H * 0.37f, W * 0.7f, H * 0.63f);
+                // the question on top
+                float qs0 = 0.9f + 0.1f * pop;
+                r.set(W * 0.08f, H * 0.15f, W * 0.86f, H * 0.37f);
                 c.save();
-                c.scale(qs0, qs0, W / 2, H / 2);
+                c.scale(qs0, qs0, r.centerX(), r.centerY());
                 card(c, r, 0xFF1E293B, false);
-                wrapped(c, q.prompt, W * 0.32f, H * 0.4f, W * 0.36f, H * 0.036f, 0xFFFFFFFF, Layout.Alignment.ALIGN_CENTER);
+                wrapped(c, q.prompt, W * 0.11f, H * 0.18f, W * 0.72f, H * 0.044f, 0xFFFFFFFF, Layout.Alignment.ALIGN_CENTER);
                 c.restore();
-                // the four answers around it, where the remote's arrows are: ▲ top, ▶ right, ▼ bottom, ◀ left
-                slot[0].set(W * 0.3f, H * 0.16f, W * 0.7f, H * 0.33f);
-                slot[1].set(W * 0.715f, H * 0.37f, W * 0.97f, H * 0.63f);
-                slot[2].set(W * 0.3f, H * 0.67f, W * 0.7f, H * 0.84f);
-                slot[3].set(W * 0.03f, H * 0.37f, W * 0.285f, H * 0.63f);
-                String[] arrows = {"▲", "▶", "▼", "◀"};
+                // the answers in a 2×2 grid: A B / C D, each player's cursor a coloured ring of dots
+                String[] letters = {"A", "B", "C", "D"};
                 int[] oc = {0xFF2563EB, 0xFFDC2626, 0xFF16A34A, 0xFFD97706};
                 for (int i = 0; i < q.options.length; i++) {
-                    RectF s = slot[i];
-                    boolean mine = choice[0] == i;
+                    float x = W * (i % 2 == 0 ? 0.08f : 0.5f), y = H * (0.42f + (i / 2) * 0.19f);
+                    RectF sl = slot[i];
+                    sl.set(x, y, x + W * 0.4f, y + H * 0.16f);
+                    boolean p1 = !reveal && (choice[0] >= 0 ? choice[0] == i : aim[0] == i);
                     int col = reveal ? (i == q.answer ? 0xFF16A34A : 0xFF334155) : oc[i];
-                    card(c, s, col, reveal ? i == q.answer : mine);
-                    float ax = s.left + H * 0.05f, ay = s.centerY();
+                    card(c, sl, col, reveal ? i == q.answer : p1);
+                    float ax = sl.left + H * 0.06f, ay = sl.centerY();
                     g.setColor(0x55000000);
-                    c.drawCircle(ax, ay, H * 0.035f, g);
-                    text(c, arrows[i], ax, ay + H * 0.014f, H * 0.04f, 0xFFFFFFFF, Paint.Align.CENTER);
-                    float tw = s.width() - H * 0.12f;
-                    fit(c, q.options[i], s.left + H * 0.1f + tw / 2, ay, tw, H * 0.038f, 0xFFFFFFFF);
-                    // a dot for each player on this answer
+                    c.drawCircle(ax, ay, H * 0.04f, g);
+                    text(c, letters[i], ax, ay + H * 0.016f, H * 0.045f, 0xFFFFFFFF, Paint.Align.CENTER);
+                    float tw = sl.width() - H * 0.14f;
+                    fit(c, q.options[i], sl.left + H * 0.12f + tw / 2, ay, tw, H * 0.042f, 0xFFFFFFFF);
+                    if (reveal) continue;
                     for (int pl = 0; pl < Party.MAX; pl++) {
                         if (!party.players[pl].joined) continue;
                         int on = choice[pl] >= 0 ? choice[pl] : aim[pl];
                         if (on != i) continue;
+                        float dx = sl.right - H * 0.035f - pl * H * 0.045f, dy = sl.top + H * 0.035f;
                         g.setColor(PCOL[pl]);
-                        c.drawCircle(s.right - H * 0.03f - pl * H * 0.035f, s.top + H * 0.03f, H * (choice[pl] >= 0 ? 0.014f : 0.009f), g);
+                        c.drawCircle(dx, dy, H * 0.017f, g);
+                        if (choice[pl] >= 0) text(c, "✔", dx, dy + H * 0.008f, H * 0.022f, 0xFF000000, Paint.Align.CENTER);
                     }
                 }
                 // the players along the bottom
@@ -1034,7 +1062,7 @@ public class BoardActivity extends Activity {
                     text(c, "P" + (i + 1) + "  " + score[i] + "   " + st + (streak[i] >= 2 ? "  🔥" + streak[i] : ""),
                             x + H * 0.03f, H * 0.915f, H * 0.03f, 0xFFFFFFFF, Paint.Align.LEFT);
                 }
-                if (!reveal) text(c, "Remote: tekan anak panah ke arah jawapan   ·   Telefon: tolak kayu bedik ke arah jawapan",
+                if (!reveal) text(c, "Remote: ◀▶▲▼ pilih, OK jawab   ·   Telefon: tolak kayu bedik untuk pilih, A jawab",
                         W / 2, H * 0.975f, H * 0.024f, 0x99FFFFFF, Paint.Align.CENTER);
             }
         }
@@ -1169,6 +1197,7 @@ public class BoardActivity extends Activity {
                     if (back) return false;
                     if (k == KeyEvent.KEYCODE_DPAD_LEFT) sel = (sel + NAMES.length - 1) % NAMES.length;
                     if (k == KeyEvent.KEYCODE_DPAD_RIGHT) sel = (sel + 1) % NAMES.length;
+                    if (k == KeyEvent.KEYCODE_DPAD_UP || k == KeyEvent.KEYCODE_DPAD_DOWN) sel = (sel + 5) % NAMES.length;
                     if (ok) {
                         game = sel;
                         setupRow = 0;
@@ -1177,7 +1206,11 @@ public class BoardActivity extends Activity {
                     return true;
                 case SETUP:
                     if (back) { screen = MENU; return true; }
-                    if (game == JUARA || game == KANCIL) { if (ok) startGame(); return true; }
+                    if (game == JUARA || game == KANCIL || game >= ARKED) {
+                        if (k == KeyEvent.KEYCODE_DPAD_LEFT || k == KeyEvent.KEYCODE_DPAD_RIGHT) party.phoneFirst = !party.phoneFirst;
+                        if (ok) startGame();
+                        return true;
+                    }
                     int rows = players + 2;
                     if (k == KeyEvent.KEYCODE_DPAD_UP) setupRow = (setupRow + rows - 1) % rows;
                     if (k == KeyEvent.KEYCODE_DPAD_DOWN) setupRow = (setupRow + 1) % rows;
@@ -1198,6 +1231,7 @@ public class BoardActivity extends Activity {
                     else if (game == CONGKAK) congkak.key(k, ok);
                     else if (game == JUARA) juara.key(k, ok);
                     else if (game == KANCIL) kancil.key(k, true);
+                    else if (game >= ARKED) arked.key(k, true);
                     else teka.key(k, ok);
                     return true;
                 default:
@@ -1209,6 +1243,7 @@ public class BoardActivity extends Activity {
 
         @Override public boolean onKeyUp(int k, KeyEvent e) {
             if (screen == PLAY && game == KANCIL) { kancil.key(k, false); return true; }
+            if (screen == PLAY && game >= ARKED) { arked.key(k, false); return true; }
             return super.onKeyUp(k, e);
         }
 

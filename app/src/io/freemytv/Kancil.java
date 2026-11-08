@@ -254,7 +254,15 @@ final class Kancil {
             // controls
             float dir;
             boolean jump;
-            if (pl.seat == 0) { dir = (kRight ? 1 : 0) - (kLeft ? 1 : 0); jump = kJump; }
+            if (pl.seat == 0) {
+                dir = (kRight ? 1 : 0) - (kLeft ? 1 : 0);
+                jump = kJump;
+                Party.Player pp = party.players[0];
+                if (pp.phone) {   // player 1 on a phone too
+                    if (dir == 0) dir = pp.x > 0.35f ? 1 : pp.x < -0.35f ? -1 : 0;
+                    jump |= pp.a;
+                }
+            }
             else {
                 Party.Player pp = party.players[pl.seat];
                 if (!pp.joined) { pl.on = false; continue; }
