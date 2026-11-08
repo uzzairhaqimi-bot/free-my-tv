@@ -105,6 +105,9 @@ public class ExtrasActivity extends Activity {
         sv.addView(list);
         root.addView(sv, new LinearLayout.LayoutParams(0, -1, 0.62f));
 
+        header("Paling Mudah");
+        row("📱 Hantar lagu & video dari telefon", () -> "Imbas kod QR", this::phoneLinks);
+
         header("Video Latar Belakang");
         row("Video latar", () -> x.video ? "Hidup" : "Mati", () -> {
             x.video = !x.video;
@@ -249,6 +252,58 @@ public class ExtrasActivity extends Activity {
                     refresh();
                 })
                 .setNegativeButton("Batal", null)
+                .show();
+    }
+
+    private LinkPage linkPage;
+
+    /** Shows a QR code; the phone that scans it pastes the links (LinkPage), and they're saved as they come. */
+    private void phoneLinks() {
+        java.net.InetAddress lan = KeyPage.lanAddress(this);
+        if (lan == null) { Toast.makeText(this, "TV tidak bersambung ke Wi-Fi", Toast.LENGTH_LONG).show(); return; }
+        final AlertDialog[] dialog = new AlertDialog[1];
+        try {
+            if (linkPage != null) linkPage.close();
+            linkPage = new LinkPage(lan, (music, video, game) -> runOnUiThread(() -> {
+                int got = 0;
+                if (!Extras.parse(music).empty()) { x.musicLink = music; x.music = true; got++; }
+                if (!Extras.parse(video).empty()) { x.link = video; x.video = true; got++; }
+                if (!Extras.parse(game).empty()) { x.gameMusicLink = game; if (x.gameMusic == 3) x.gameMusic = 0; got++; }
+                x.save(this);
+                refresh();
+                Toast.makeText(this, got > 0 ? "Pautan diterima dari telefon ✓" : "Tiada pautan YouTube yang sah", Toast.LENGTH_LONG).show();
+                if (got > 0 && dialog[0] != null) dialog[0].dismiss();
+            }));
+        } catch (java.io.IOException e) {
+            Toast.makeText(this, "Tidak dapat buka halaman telefon", Toast.LENGTH_LONG).show();
+            return;
+        }
+        boolean[][] m = Qr.encode(linkPage.url);
+        int q = 4, n = m.length;
+        android.graphics.Bitmap b = android.graphics.Bitmap.createBitmap(n + q * 2, n + q * 2, android.graphics.Bitmap.Config.ARGB_8888);
+        b.eraseColor(Color.WHITE);
+        for (int y = 0; y < n; y++) for (int xx = 0; xx < n; xx++) if (m[y][xx]) b.setPixel(xx + q, y + q, Color.BLACK);
+        android.widget.ImageView img = new android.widget.ImageView(this);
+        android.graphics.drawable.BitmapDrawable d = new android.graphics.drawable.BitmapDrawable(getResources(), b);
+        d.setFilterBitmap(false);
+        img.setImageDrawable(d);
+        TextView how = new TextView(this);
+        how.setText("1. Telefon guna Wi-Fi yang sama dengan TV.\n2. Buka kamera telefon, imbas kod ini.\n"
+                + "3. Dalam YouTube: Kongsi → Salin pautan, kemudian tampal di halaman itu.\n4. Tekan \"Hantar ke TV\".");
+        how.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        how.setTextColor(0xFFE2E8F0);
+        how.setPadding(dp(16), 0, 0, 0);
+        LinearLayout wrap = new LinearLayout(this);
+        wrap.setOrientation(LinearLayout.HORIZONTAL);
+        wrap.setGravity(Gravity.CENTER_VERTICAL);
+        wrap.setPadding(dp(20), dp(10), dp(20), dp(10));
+        wrap.addView(img, new LinearLayout.LayoutParams(dp(220), dp(220)));
+        wrap.addView(how, new LinearLayout.LayoutParams(0, -2, 1));
+        dialog[0] = new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle("Hantar pautan dari telefon")
+                .setView(wrap)
+                .setNegativeButton("Tutup", null)
+                .setOnDismissListener(di -> { if (linkPage != null) { linkPage.close(); linkPage = null; } })
                 .show();
     }
 
