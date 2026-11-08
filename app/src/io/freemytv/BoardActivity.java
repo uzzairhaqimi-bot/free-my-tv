@@ -854,7 +854,7 @@ public class BoardActivity extends Activity {
         final class Juara {
             final int[] score = new int[4], choice = new int[4];
             final long[] at = new long[4];
-            final int[] lastA = new int[4];
+            final int[] lastA = new int[4], aim = new int[4];   // aim: the option a phone's stick last pointed at
             int qNo, pick;
             long start;
             boolean reveal;
@@ -868,7 +868,7 @@ public class BoardActivity extends Activity {
 
             void next() {
                 q = bank.next(rnd.nextInt(4), 2 + qNo / 2, new HashSet<String>());
-                for (int i = 0; i < 4; i++) { choice[i] = -1; at[i] = 0; }
+                for (int i = 0; i < 4; i++) { choice[i] = -1; at[i] = 0; aim[i] = -1; lastA[i] = party.players[i].aPresses; }
                 pick = 0;
                 reveal = false;
                 start = SystemClock.uptimeMillis();
@@ -886,10 +886,12 @@ public class BoardActivity extends Activity {
                     for (int i = 1; i < Party.MAX; i++) {
                         Party.Player pl = party.players[i];
                         if (!pl.joined || choice[i] >= 0) continue;
+                        // the stick picks (and stays picked when let go), A answers
+                        int o = dirToOption(pl.x, pl.y);
+                        if (o >= 0 && o < q.options.length && o != aim[i]) { aim[i] = o; party.buzz(i, 15); }
                         if (pl.aPresses != lastA[i]) {
                             lastA[i] = pl.aPresses;
-                            int o = dirToOption(pl.x, pl.y);
-                            if (o >= 0 && o < q.options.length) { choice[i] = o; at[i] = now; party.buzz(i, 30); }
+                            if (aim[i] >= 0) { choice[i] = aim[i]; at[i] = now; party.buzz(i, 40); }
                         }
                     }
                     boolean all = true;
@@ -917,8 +919,10 @@ public class BoardActivity extends Activity {
 
             void key(int k, boolean ok) {
                 if (reveal || choice[0] >= 0) return;
-                if (k == KeyEvent.KEYCODE_DPAD_UP) pick = (pick + q.options.length - 1) % q.options.length;
-                if (k == KeyEvent.KEYCODE_DPAD_DOWN) pick = (pick + 1) % q.options.length;
+                // each arrow picks the answer it is drawn with: ▲ A, ▶ B, ▼ C, ◀ D; OK answers
+                int o = k == KeyEvent.KEYCODE_DPAD_UP ? 0 : k == KeyEvent.KEYCODE_DPAD_RIGHT ? 1
+                        : k == KeyEvent.KEYCODE_DPAD_DOWN ? 2 : k == KeyEvent.KEYCODE_DPAD_LEFT ? 3 : -1;
+                if (o >= 0 && o < q.options.length) pick = o;
                 if (ok) { choice[0] = pick; at[0] = SystemClock.uptimeMillis(); }
             }
 
@@ -939,16 +943,26 @@ public class BoardActivity extends Activity {
                 for (int i = 0; i < q.options.length; i++) {
                     float x = W * (i % 2 == 0 ? 0.1f : 0.51f), y = H * (0.4f + (i / 2) * 0.16f);
                     r.set(x, y, x + W * 0.39f, y + H * 0.13f);
-                    boolean on = choice[0] < 0 && i == pick && !reveal;
-                    card(c, r, reveal ? (i == q.answer ? 0xFF16A34A : 0x55334155) : oc[i], on || !reveal);
+                    boolean on = reveal ? i == q.answer : (choice[0] < 0 ? i == pick : i == choice[0]);
+                    card(c, r, reveal ? (i == q.answer ? 0xFF16A34A : 0xFF475569) : oc[i], on);
                     fit(c, arrows[i] + "  " + "ABCD".charAt(i) + ".  " + q.options[i], r.centerX(), r.centerY(), r.width() * 0.9f, H * 0.04f, 0xFFFFFFFF);
+                    // a dot for every player pointing at (or locked on) this answer
+                    if (!reveal) for (int pl = 0; pl < Party.MAX; pl++) {
+                        int mine = choice[pl] >= 0 ? choice[pl] : pl == 0 ? pick : aim[pl];
+                        if (!party.players[pl].joined || mine != i) continue;
+                        g.setColor(PCOL[pl]);
+                        c.drawCircle(r.left + H * 0.03f + pl * H * 0.035f, r.top + H * 0.03f, H * (choice[pl] >= 0 ? 0.014f : 0.009f), g);
+                    }
                 }
                 for (int i = 0; i < Party.MAX; i++) {
                     if (!party.players[i].joined) continue;
                     float x = W * (0.12f + i * 0.2f);
-                    String st = reveal ? (choice[i] == q.answer ? "✓" : "✗") : choice[i] >= 0 ? "✔ jawab" : "…";
+                    String st = reveal ? (choice[i] == q.answer ? "✓" : "✗") : choice[i] >= 0 ? "✔ dikunci"
+                            : (i == 0 ? "pilih " + "ABCD".charAt(pick) : aim[i] >= 0 ? "pilih " + "ABCD".charAt(aim[i]) + ", tekan A" : "…");
                     text(c, "P" + (i + 1) + "  " + score[i] + "  " + st, x, H * 0.9f, H * 0.032f, PCOL[i], Paint.Align.LEFT);
                 }
+                if (!reveal) text(c, "Remote: ▲▶▼◀ pilih jawapan, OK kunci   ·   Telefon: tolak kayu bedik ke arah jawapan, tekan A",
+                        W / 2, H * 0.97f, H * 0.024f, 0x99FFFFFF, Paint.Align.CENTER);
             }
         }
 
