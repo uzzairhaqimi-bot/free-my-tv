@@ -28,7 +28,8 @@ import java.util.Random;
  * Fork extra: "Papan Permainan", five family games made for this fork, played by passing the TV remote around (and,
  * for Siapa Juara?, with phones as answer pads): Hartanah Malaysia (buy towns, collect rent), Ular & Tangga Bijak
  * (answer to climb), Congkak (the traditional Malay seed game), Siapa Juara? (a quiz show) and Teka Kata (guess the
- * five-letter word in six tries). Players who are not people are played by the TV.
+ * five-letter word in six tries), plus Pengembaraan Sang Kancil (Kancil.java), a split-screen platformer. Players who
+ * are not people are played by the TV.
  */
 public class BoardActivity extends Activity {
     private Board board;
@@ -54,14 +55,16 @@ public class BoardActivity extends Activity {
 
     static final class Board extends View {
         static final int MENU = 0, SETUP = 1, PLAY = 2, END = 3;
-        static final int HARTA = 0, ULAR = 1, CONGKAK = 2, JUARA = 3, TEKA = 4;
-        static final String[] NAMES = {"Hartanah Malaysia", "Ular & Tangga Bijak", "Congkak", "Siapa Juara?", "Teka Kata"};
+        static final int HARTA = 0, ULAR = 1, CONGKAK = 2, JUARA = 3, TEKA = 4, KANCIL = 5;
+        static final String[] NAMES = {"Hartanah Malaysia", "Ular & Tangga Bijak", "Congkak", "Siapa Juara?", "Teka Kata", "Sang Kancil"};
         static final String[] HINTS = {"Beli bandar, kutip sewa, jadi terkaya", "Jawab soalan untuk naik tangga",
-                "Permainan tradisional, kumpul biji terbanyak", "Kuiz TV, telefon jadi butang jawapan", "Teka perkataan 5 huruf, 6 cubaan"};
-        static final int[] COLS = {0xFF22C55E, 0xFFF97316, 0xFFB45309, 0xFF8B5CF6, 0xFF0EA5E9};
+                "Permainan tradisional, kumpul biji terbanyak", "Kuiz TV, telefon jadi butang jawapan", "Teka perkataan 5 huruf, 6 cubaan",
+                "Pengembaraan 5 dunia, 1-4 pemain skrin pisah"};
+        static final int[] COLS = {0xFF22C55E, 0xFFF97316, 0xFFB45309, 0xFF8B5CF6, 0xFF0EA5E9, 0xFF65A30D};
         static final int[] PCOL = {0xFF22D3EE, 0xFFFF4FD8, 0xFFFACC15, 0xFF4ADE80};
 
         final Party party = new Party();
+        final Kancil kancil = new Kancil(party);
         final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG), g = new Paint(Paint.ANTI_ALIAS_FLAG);
         final TextPaint tp = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         final RectF r = new RectF();
@@ -144,6 +147,11 @@ public class BoardActivity extends Activity {
                 else if (game == ULAR) ular.draw(c, dt);
                 else if (game == CONGKAK) congkak.draw(c, dt);
                 else if (game == JUARA) juara.draw(c, dt);
+                else if (game == KANCIL) {
+                    kancil.update(dt);
+                    kancil.draw(c, W, H, t);
+                    if (kancil.over) endGame(kancil.result);
+                }
                 else teka.draw(c, dt);
             } else drawEnd(c);
             if (screen == PLAY && !msg.isEmpty() && now - msgAt < 3500) {
@@ -160,8 +168,9 @@ public class BoardActivity extends Activity {
         void drawMenu(Canvas c) {
             text(c, "Papan Permainan", W / 2, H * 0.13f, H * 0.075f, 0xFFFFFFFF, Paint.Align.CENTER);
             text(c, "Untuk satu keluarga, satu remote", W / 2, H * 0.2f, H * 0.032f, 0xBBFFFFFF, Paint.Align.CENTER);
-            float cw = W * 0.17f, gap = W * 0.02f, x0 = (W - 5 * cw - 4 * gap) / 2;
-            for (int i = 0; i < 5; i++) {
+            int n = NAMES.length;
+            float cw = W * 0.145f, gap = W * 0.015f, x0 = (W - n * cw - (n - 1) * gap) / 2;
+            for (int i = 0; i < n; i++) {
                 r.set(x0 + i * (cw + gap), H * 0.3f, x0 + i * (cw + gap) + cw, H * 0.78f);
                 boolean on = i == sel;
                 if (on) { r.offset(0, -H * 0.02f); float gr = W * (0.005f + 0.003f * (float) Math.sin(t * 3)); r.inset(-gr, -gr); }
@@ -173,7 +182,7 @@ public class BoardActivity extends Activity {
             text(c, "◀▶ pilih   ·   OK main   ·   Back keluar", W / 2, H * 0.92f, H * 0.028f, 0x99FFFFFF, Paint.Align.CENTER);
         }
 
-        final android.graphics.Bitmap[] icons = new android.graphics.Bitmap[5];
+        final android.graphics.Bitmap[] icons = new android.graphics.Bitmap[6];
 
         /** The game's picture, drawn once at this screen's size; s is half its height. */
         void drawIcon(Canvas c, int i, float cx, float cy, float s) {
@@ -188,7 +197,7 @@ public class BoardActivity extends Activity {
 
         void drawSetup(Canvas c) {
             text(c, NAMES[game], W / 2, H * 0.14f, H * 0.065f, 0xFFFFFFFF, Paint.Align.CENTER);
-            if (game == JUARA) {
+            if (game == JUARA || game == KANCIL) {
                 drawJuaraLobby(c);
                 return;
             }
@@ -216,6 +225,7 @@ public class BoardActivity extends Activity {
             else if (game == ULAR) ular.start();
             else if (game == CONGKAK) congkak.start();
             else if (game == JUARA) juara.start();
+            else if (game == KANCIL) kancil.start();
             else teka.start(true, true);
         }
 
@@ -828,7 +838,8 @@ public class BoardActivity extends Activity {
                 text(c, "Pemain " + (i + 1) + " · " + (i == 0 ? "Remote TV" : pl.joined ? "Telefon" : "Menunggu…"), W * 0.62f, y, H * 0.032f,
                         pl.joined ? 0xFFFFFFFF : 0x66FFFFFF, Paint.Align.LEFT);
             }
-            text(c, "Telefon: arah kayu bedik ▲A ▶B ▼C ◀D, kemudian tekan butang A", W / 2, H * 0.82f, H * 0.028f, 0xFF67E8F9, Paint.Align.CENTER);
+            text(c, game == KANCIL ? "Remote: ◀▶ lari, OK lompat  ·  Telefon: kayu bedik lari, butang A lompat  ·  2 pemain = skrin atas/bawah"
+                    : "Telefon: arah kayu bedik ▲A ▶B ▼C ◀D, kemudian tekan butang A", W / 2, H * 0.82f, H * 0.028f, 0xFF67E8F9, Paint.Align.CENTER);
             text(c, "OK untuk mula", W / 2, H * 0.9f, H * 0.04f, 0xFF4ADE80, Paint.Align.CENTER);
         }
 
@@ -1067,8 +1078,8 @@ public class BoardActivity extends Activity {
             switch (screen) {
                 case MENU:
                     if (back) return false;
-                    if (k == KeyEvent.KEYCODE_DPAD_LEFT) sel = (sel + 4) % 5;
-                    if (k == KeyEvent.KEYCODE_DPAD_RIGHT) sel = (sel + 1) % 5;
+                    if (k == KeyEvent.KEYCODE_DPAD_LEFT) sel = (sel + NAMES.length - 1) % NAMES.length;
+                    if (k == KeyEvent.KEYCODE_DPAD_RIGHT) sel = (sel + 1) % NAMES.length;
                     if (ok) {
                         game = sel;
                         setupRow = 0;
@@ -1077,7 +1088,7 @@ public class BoardActivity extends Activity {
                     return true;
                 case SETUP:
                     if (back) { screen = MENU; return true; }
-                    if (game == JUARA) { if (ok) startGame(); return true; }
+                    if (game == JUARA || game == KANCIL) { if (ok) startGame(); return true; }
                     int rows = players + 2;
                     if (k == KeyEvent.KEYCODE_DPAD_UP) setupRow = (setupRow + rows - 1) % rows;
                     if (k == KeyEvent.KEYCODE_DPAD_DOWN) setupRow = (setupRow + 1) % rows;
@@ -1097,6 +1108,7 @@ public class BoardActivity extends Activity {
                     else if (game == ULAR) ular.key(k, ok);
                     else if (game == CONGKAK) congkak.key(k, ok);
                     else if (game == JUARA) juara.key(k, ok);
+                    else if (game == KANCIL) kancil.key(k, true);
                     else teka.key(k, ok);
                     return true;
                 default:
@@ -1104,6 +1116,11 @@ public class BoardActivity extends Activity {
                     if (ok) startGame();
                     return true;
             }
+        }
+
+        @Override public boolean onKeyUp(int k, KeyEvent e) {
+            if (screen == PLAY && game == KANCIL) { kancil.key(k, false); return true; }
+            return super.onKeyUp(k, e);
         }
 
         /** In Hartanah, Back is "no thanks" on a buy offer instead of leaving the game. */

@@ -341,6 +341,21 @@ final class FancyArt {
                 star(c, p, cx, cy - s * 0.35f, s * 0.22f, 0xFFFFFFFF);
                 break;
             }
+            case 5: {   // Sang Kancil on a grassy hill with a rambutan
+                p.setColor(0xFF16A34A);
+                c.drawOval(cx - s * 1.2f, cy + s * 0.55f, cx + s * 1.2f, cy + s * 1.3f, p);
+                Kancil.drawKancil(c, p, new Path(), cx - s * 0.1f, cy + s * 0.75f, s * 1.5f, true, 0.4f, 0xFF22D3EE, 0, true);
+                p.setColor(0xFFDC2626);
+                c.drawCircle(cx + s * 0.85f, cy - s * 0.55f, s * 0.2f, p);
+                p.setColor(0xFF15803D);
+                p.setStrokeWidth(s * 0.04f);
+                for (int k = 0; k < 12; k++) {
+                    double an = k * Math.PI / 6;
+                    c.drawLine(cx + s * 0.85f + (float) Math.cos(an) * s * 0.18f, cy - s * 0.55f + (float) Math.sin(an) * s * 0.18f,
+                            cx + s * 0.85f + (float) Math.cos(an) * s * 0.3f, cy - s * 0.55f + (float) Math.sin(an) * s * 0.3f, p);
+                }
+                break;
+            }
             default: {   // letter tiles in quiz colours
                 String w = "KATA";
                 int[] col = {0xFF22C55E, 0xFFEAB308, 0xFF64748B, 0xFF22C55E};
