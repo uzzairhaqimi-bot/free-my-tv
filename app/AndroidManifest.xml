@@ -128,6 +128,28 @@
             </intent-filter>
         </activity>
 
+        <!-- Fork extra: "Video & LED" settings (a video behind the home screen, the RGB LED glow). In All Apps; also
+             takes values from the computer with am start (ExtrasActivity). -->
+        <activity
+            android:name=".ExtrasActivity"
+            android:process=":home"
+            android:exported="true"
+            android:label="Video &amp; LED"
+            android:taskAffinity="io.freemytv.extras"
+            android:excludeFromRecents="true"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen" />
+
+        <!-- Fork extra: neon retro games (RetroActivity), in All Apps as "Retro Arked". -->
+        <activity
+            android:name=".RetroActivity"
+            android:process=":home"
+            android:exported="false"
+            android:taskAffinity="io.freemytv.retro"
+            android:excludeFromRecents="true"
+            android:screenOrientation="landscape"
+            android:theme="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen" />
+
         <activity
             android:name=".QuickSettingsActivity"
             android:process=":home"

@@ -41,7 +41,38 @@ public class HomeActivity extends Activity {
         }
         Ui.init(this);
         home = new HomeView(this);
-        setContentView(home);
+        // Fork extras: a video behind the home screen and an RGB LED glow over its edges (Extras, "Video & LED").
+        android.widget.FrameLayout root = new android.widget.FrameLayout(this);
+        videoBg = new VideoBg(this);
+        videoBg.setVisibility(android.view.View.GONE);
+        root.addView(videoBg, new android.widget.FrameLayout.LayoutParams(-1, -1));
+        root.addView(home, new android.widget.FrameLayout.LayoutParams(-1, -1));
+        edge = new EdgeLight(this);
+        edge.setVisibility(android.view.View.GONE);
+        root.addView(edge, new android.widget.FrameLayout.LayoutParams(-1, -1));
+        // Fork extras: music (out of sight) and a motivational line that changes every minute (top centre).
+        music = new MusicBg(this);
+        root.addView(music, new android.widget.FrameLayout.LayoutParams(2, 2));
+        quote = new android.widget.TextView(this);
+        quote.setTextColor(0xF2FFFFFF);
+        quote.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
+        quote.setGravity(Gravity.CENTER);
+        quote.setMaxLines(2);
+        quote.setShadowLayer(8, 0, 2, 0x99000000);
+        float d = getResources().getDisplayMetrics().density;
+        quote.setPadding(Math.round(18 * d), Math.round(8 * d), Math.round(18 * d), Math.round(8 * d));
+        android.graphics.drawable.GradientDrawable qb = new android.graphics.drawable.GradientDrawable();
+        qb.setCornerRadius(40 * d);
+        qb.setColor(0x59000000);
+        qb.setStroke(Math.round(d), 0x33FFFFFF);
+        quote.setBackground(qb);
+        quote.setFocusable(false);
+        quote.setVisibility(android.view.View.GONE);
+        android.widget.FrameLayout.LayoutParams ql = new android.widget.FrameLayout.LayoutParams(-2, -2, Gravity.TOP | Gravity.CENTER_HORIZONTAL);
+        ql.topMargin = Math.round(30 * d);
+        quote.setMaxWidth(Math.round(getResources().getDisplayMetrics().widthPixels * 0.42f));
+        root.addView(quote, ql);
+        setContentView(root);
         getWindow().setBackgroundDrawable(null);
         if (getIntent().getBooleanExtra(EXTRA_ALL_APPS, false)) home.showAllApps();
         // At power-on "Live TV" (#346): the first time the home screen comes up after a full start, in Free My TV mode.
@@ -52,6 +83,81 @@ public class HomeActivity extends Activity {
     }
 
     private boolean resumed, keyPressed;
+    private VideoBg videoBg;
+    private EdgeLight edge;
+    private MusicBg music;
+    private android.widget.TextView quote;
+    private final android.os.Handler extrasHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private int videoEvery;
+
+    /** Every minute: a new line; every `videoEvery` minutes: the next video. */
+    private final Runnable minute = new Runnable() {
+        private int count;
+        @Override public void run() {
+            try {
+                count++;
+                if (quote.getVisibility() == android.view.View.VISIBLE) showQuote();
+                if (videoEvery > 0 && Extras.videoActive && count % videoEvery == 0) videoBg.nextItem();
+            } catch (Throwable ignored) { }
+            extrasHandler.postDelayed(this, 60_000);
+        }
+    };
+
+    private void showQuote() {
+        final String s = Quotes.next();
+        quote.animate().alpha(0f).setDuration(400).withEndAction(() -> {
+            quote.setText("✦  " + s);
+            quote.animate().alpha(1f).setDuration(600).start();
+        }).start();
+    }
+
+    /** Fork extras: start or stop the video and the LED glow from Extras' file. Never throws. */
+    private void applyExtras() {
+        if (home == null) return;
+        try {
+            Extras x = Extras.load(this);
+            boolean video = x.video && videoBg.play(x.link);
+            if (!video) videoBg.stop();
+            videoBg.setVisibility(video ? android.view.View.VISIBLE : android.view.View.GONE);
+            if (video != Extras.videoActive) {
+                Extras.videoActive = video;
+                home.extrasChanged();
+            }
+            videoEvery = x.videoEvery;
+            if (x.music) music.play(x.musicLink, x.musicVolume()); else music.stop();
+            if (x.quotes) {
+                if (quote.getVisibility() != android.view.View.VISIBLE) {
+                    quote.setText("✦  " + Quotes.next());
+                    quote.setAlpha(1f);
+                    quote.setVisibility(android.view.View.VISIBLE);
+                }
+            } else {
+                quote.setVisibility(android.view.View.GONE);
+            }
+            extrasHandler.removeCallbacks(minute);
+            extrasHandler.postDelayed(minute, 60_000);
+            if (x.led) {
+                edge.configure(x.ledStyle, x.ledColor, x.ledSpeed, x.ledWidth);
+                edge.setVisibility(android.view.View.VISIBLE);
+                edge.start();
+            } else {
+                edge.stop();
+                edge.setVisibility(android.view.View.GONE);
+            }
+        } catch (Throwable t) {
+            AppLog.w("extras: " + t);
+        }
+    }
+
+    /** Free memory while an app is in front: no video and no LED animation behind it. */
+    private void pauseExtras() {
+        try {
+            if (videoBg != null) videoBg.stop();
+            if (edge != null) edge.stop();
+            if (music != null) music.stop();
+            extrasHandler.removeCallbacks(minute);
+        } catch (Throwable ignored) { }
+    }
 
     /** Live TV, unless a key came first or something else is in front by then. */
     private final Runnable powerOnLive = () -> {
@@ -74,11 +180,13 @@ public class HomeActivity extends Activity {
             return;
         }
         if (home != null) home.resume();
+        applyExtras();
         Updates.tellOnce(this);   // an update the week's check got ready: said once
     }
 
     @Override protected void onPause() {
         resumed = false;
+        pauseExtras();
         if (home != null) home.pause();
         super.onPause();
     }
@@ -103,6 +211,7 @@ public class HomeActivity extends Activity {
     private static final long TWICE_MS = 700;
 
     @Override protected void onDestroy() {
+        pauseExtras();
         if (home != null) {
             home.removeCallbacks(powerOnLive);
             home.destroy();

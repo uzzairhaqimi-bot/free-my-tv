@@ -679,6 +679,13 @@ final class HomeView extends ViewGroup implements Choreographer.FrameCallback, H
 
     // MARK: - Lifecycle (called by HomeActivity)
 
+    /** Fork extras: the video background came or went: redraw the sky and pick the look again. */
+    void extrasChanged() {
+        checkNight(false);
+        sky.invalidate();
+        invalidate();
+    }
+
     void resume() {
         if (running) return;
         running = true;
@@ -1331,7 +1338,7 @@ final class HomeView extends ViewGroup implements Choreographer.FrameCallback, H
 
     /** Day or night right now (from the sun at your location); `animate`: with the transition. */
     private void checkNight(boolean animate) {
-        boolean want = data.isNight(System.currentTimeMillis());
+        boolean want = data.isNight(System.currentTimeMillis()) || Extras.videoActive;   // dark look over a video
         if (want == nightTarget) return;
         nightTarget = want;
         if (animate && running) {
@@ -4502,6 +4509,10 @@ final class HomeView extends ViewGroup implements Choreographer.FrameCallback, H
      * the same photo almost black (or a dark gradient), drawn on top during the transition.
      */
     private void drawLightSky(Canvas c) {
+        if (Extras.videoActive) {   // fork extra: the video shows through, under a light veil for the text
+            c.drawColor(0x59000000);
+            return;
+        }
         long up = SystemClock.uptimeMillis();
         float e = bgFadeAt == 0 ? 1 : fadeEase(bgFadeAt, up);
         boolean fading = bgFadeAt != 0;

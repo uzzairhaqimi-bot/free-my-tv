@@ -62,6 +62,10 @@ final class HomeApps {
     static final int RECENTS = 8;
     /** A Home Assistant entity in the drawer (HomeAssistant): OK calls its service, nothing opens. */
     static final int HOME_ASSISTANT = 9;
+    /** Fork extra: "Video & LED" (ExtrasActivity), in All Apps next to Free My TV's own settings. */
+    static final int EXTRAS = 10;
+    /** Fork extra: the retro games (RetroActivity). */
+    static final int RETRO = 11;
     /** Image size of each card (16:9; on screen it shows up to ~330 px wide). */
     static final int TILE_W = 384, TILE_H = 216;
 
@@ -600,6 +604,8 @@ final class HomeApps {
             TILES.keySet().removeIf(k -> k.contains(".") && !seen.contains(k));
         }
         items.add(special(c, SETTINGS, "freemytv-settings", "Free My TV", "sparkles"));
+        items.add(special(c, EXTRAS, "freemytv-extras", "Video & LED", "lightbulb"));
+        items.add(special(c, RETRO, "freemytv-retro", "Retro Arked", "gamepad"));
         return items;
     }
 
@@ -641,6 +647,12 @@ final class HomeApps {
                 break;
             case SETTINGS:
                 intent = new Intent().setComponent(new ComponentName(a, SettingsActivity.class));
+                break;
+            case EXTRAS:
+                intent = new Intent().setComponent(new ComponentName(a, ExtrasActivity.class));
+                break;
+            case RETRO:
+                intent = new Intent().setComponent(new ComponentName(a, RetroActivity.class));
                 break;
             case ANDROID_SETTINGS:
                 intent = new Intent(Settings.ACTION_SETTINGS);
