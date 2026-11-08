@@ -39,9 +39,25 @@ public class LearnActivity extends Activity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         UiFxLite.init(this);
         Board v = new Board(this);
-        setContentView(v);
+        android.widget.FrameLayout root = new android.widget.FrameLayout(this);
+        root.addView(v);
+        sound.attach(root);
+        v.sound = sound;
+        setContentView(root);
         v.setFocusable(true);
         v.requestFocus();
+    }
+
+    private final GameSound sound = new GameSound();
+
+    @Override protected void onResume() {
+        super.onResume();
+        sound.resume(this);
+    }
+
+    @Override protected void onPause() {
+        sound.pause();
+        super.onPause();
     }
 
     /** Small sound helper: the system's own click sounds, so no files are needed. */
@@ -80,6 +96,7 @@ public class LearnActivity extends Activity {
         final FancyArt.Aurora aurora = new FancyArt.Aurora(0xFF0B1026, 0xFF134E4A,
                 new int[]{0xFF8B5CF6, 0xFF14B8A6, 0xFFF472B6}, new String[]{"A", "7", "+", "B", "×", "π", "9", "?", "★", "÷", "C", "3"});
         final FancyArt.Cards cards = new FancyArt.Cards();
+        GameSound sound;
         int screen = KIDS, sel, kidSel, mode, subject;
         LearnStore.Kid kid;
 
@@ -201,12 +218,8 @@ public class LearnActivity extends Activity {
             float dt = last == 0 ? 0 : Math.min(0.05f, (now - last) / 1000f);
             last = now;
             t += dt;
-            if (screen != PLAY) aurora.draw(c, W, H, t);
-            else {
-                p.setShader(sky);
-                c.drawRect(0, 0, W, H, p);
-                p.setShader(null);
-            }
+            if (sound != null) sound.mood(screen == PLAY && (mode == BOSS || mode == ROCKET || mode == QUIZ) ? GameMusic.SEMANGAT : GameMusic.SANTAI);
+            aurora.draw(c, W, H, t);
             for (int i = 0; i < starX.length; i++) {
                 p.setColor(Color.argb(60 + (int) (60 * Math.sin(t * 2 + i)), 255, 255, 255));
                 c.drawCircle(starX[i] * W, starY[i] * H * 0.7f, H * 0.003f, p);
@@ -472,7 +485,9 @@ public class LearnActivity extends Activity {
                 bossHp--;
                 burst(W / 2, H * 0.45f);
                 UiFxLite.ok();
+                if (sound != null) sound.sfx(GameMusic.SFX_OK);
             } else {
+                if (sound != null) sound.sfx(GameMusic.SFX_WRONG);
                 rocketShake = 0.5f;
                 rocket = Math.max(0, rocket - 0.03f);
                 hearts--;

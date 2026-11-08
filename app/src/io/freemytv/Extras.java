@@ -31,6 +31,9 @@ final class Extras {
     String musicLink = "";
     int musicVol = 1;          // 0 low, 1 medium, 2 high
     boolean quotes = true;
+    /** Music in the fork's games: 0 mixed (the link in calm moments, composed upbeat songs in action), 1 composed only, 2 the link only, 3 off. */
+    int gameMusic;
+    String gameMusicLink = "https://www.youtube.com/watch?v=-Yu4pgqXfso";
 
     static final int[] EVERY = {0, 1, 3, 5, 10, 30};
 
@@ -61,6 +64,8 @@ final class Extras {
             e.musicLink = o.optString("musicLink", "");
             e.musicVol = clamp(o.optInt("musicVol", 1), 2);
             e.quotes = o.optBoolean("quotes", true);
+            e.gameMusic = clamp(o.optInt("gameMusic", 0), 3);
+            e.gameMusicLink = o.optString("gameMusicLink", e.gameMusicLink);
         } catch (Exception ignored) {
             // no file yet: the defaults
         }
@@ -82,6 +87,8 @@ final class Extras {
             o.put("musicLink", musicLink == null ? "" : musicLink);
             o.put("musicVol", musicVol);
             o.put("quotes", quotes);
+            o.put("gameMusic", gameMusic);
+            o.put("gameMusicLink", gameMusicLink == null ? "" : gameMusicLink);
             File tmp = new File(c.getFilesDir(), "extras.json.tmp");
             try (FileOutputStream out = new FileOutputStream(tmp)) {
                 out.write(o.toString().getBytes("UTF-8"));

@@ -38,7 +38,10 @@ public class BoardActivity extends Activity {
         super.onCreate(b);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         board = new Board(this);
-        setContentView(board);
+        android.widget.FrameLayout root = new android.widget.FrameLayout(this);
+        root.addView(board);
+        board.sound.attach(root);
+        setContentView(root);
         board.setFocusable(true);
         board.requestFocus();
     }
@@ -46,10 +49,12 @@ public class BoardActivity extends Activity {
     @Override protected void onResume() {
         super.onResume();
         board.party.start(this);
+        board.sound.resume(this);
     }
 
     @Override protected void onPause() {
         board.party.stop();
+        board.sound.pause();
         super.onPause();
     }
 
@@ -64,7 +69,8 @@ public class BoardActivity extends Activity {
         static final int[] PCOL = {0xFF22D3EE, 0xFFFF4FD8, 0xFFFACC15, 0xFF4ADE80};
 
         final Party party = new Party();
-        final Kancil kancil = new Kancil(party);
+        final GameSound sound = new GameSound();
+        final Kancil kancil = new Kancil(party, sound);
         final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG), g = new Paint(Paint.ANTI_ALIAS_FLAG);
         final TextPaint tp = new TextPaint(Paint.ANTI_ALIAS_FLAG);
         final RectF r = new RectF();
@@ -135,11 +141,8 @@ public class BoardActivity extends Activity {
             float dt = last == 0 ? 0 : Math.min(0.05f, (now - last) / 1000f);
             last = now;
             t += dt;
-            if (screen == PLAY) {
-                p.setShader(bg);
-                c.drawRect(0, 0, W, H, p);
-                p.setShader(null);
-            } else aurora.draw(c, W, H, t);
+            sound.mood(screen == PLAY && (game == JUARA || game == KANCIL) ? GameMusic.SEMANGAT : GameMusic.SANTAI);
+            if (screen != PLAY || game != KANCIL) aurora.draw(c, W, H, t);   // Kancil draws its own world
             if (screen == MENU) drawMenu(c);
             else if (screen == SETUP) drawSetup(c);
             else if (screen == PLAY) {
@@ -839,7 +842,7 @@ public class BoardActivity extends Activity {
                         pl.joined ? 0xFFFFFFFF : 0x66FFFFFF, Paint.Align.LEFT);
             }
             text(c, game == KANCIL ? "Remote: ◀▶ lari, OK lompat  ·  Telefon: kayu bedik lari, butang A lompat  ·  2 pemain = skrin atas/bawah"
-                    : "Telefon: arah kayu bedik ▲A ▶B ▼C ◀D, kemudian tekan butang A", W / 2, H * 0.82f, H * 0.028f, 0xFF67E8F9, Paint.Align.CENTER);
+                    : "Jawapan di 4 arah. Remote: tekan anak panah ke arah jawapan. Telefon: tolak kayu bedik ke arah jawapan.", W / 2, H * 0.82f, H * 0.028f, 0xFF67E8F9, Paint.Align.CENTER);
             text(c, "OK untuk mula", W / 2, H * 0.9f, H * 0.04f, 0xFF4ADE80, Paint.Align.CENTER);
         }
 
@@ -852,32 +855,53 @@ public class BoardActivity extends Activity {
         }
 
         final class Juara {
-            final int[] score = new int[4], choice = new int[4];
-            final long[] at = new long[4];
-            final int[] lastA = new int[4], aim = new int[4];   // aim: the option a phone's stick last pointed at
-            int qNo, pick;
+            static final int ROUNDS = 12;
+            final int[] score = new int[4], choice = new int[4], streak = new int[4], gained = new int[4];
+            final long[] at = new long[4], aimAt = new long[4];
+            final int[] lastA = new int[4], aim = new int[4];   // aim: where a phone's stick points now
+            final List<LearnBank.Q> qs = new ArrayList<>();
+            int qNo;
             long start;
             boolean reveal;
             LearnBank.Q q;
+            float pop;   // grows the new question in
 
             void start() {
-                for (int i = 0; i < 4; i++) { score[i] = 0; lastA[i] = party.players[i].aPresses; }
+                for (int i = 0; i < 4; i++) { score[i] = 0; streak[i] = 0; }
+                // mostly general knowledge, never the same as the last games; every fourth from the school banks
+                qs.clear();
+                List<String[]> rows = JuaraBank.pick(getContext(), ROUNDS, rnd);
+                for (int i = 0; i < ROUNDS; i++) {
+                    if (i % 4 == 3 || i >= rows.size()) qs.add(bank.next(1 + rnd.nextInt(3), 3 + i / 4, new HashSet<String>()));
+                    else qs.add(JuaraBank.asQ(rows.get(i), rnd));
+                }
                 qNo = 0;
                 next();
             }
 
             void next() {
-                q = bank.next(rnd.nextInt(4), 2 + qNo / 2, new HashSet<String>());
-                for (int i = 0; i < 4; i++) { choice[i] = -1; at[i] = 0; aim[i] = -1; lastA[i] = party.players[i].aPresses; }
-                pick = 0;
+                q = qs.get(qNo);
+                for (int i = 0; i < 4; i++) {
+                    choice[i] = -1; at[i] = 0; aim[i] = -1; gained[i] = 0;
+                    lastA[i] = party.players[i].aPresses;
+                }
                 reveal = false;
+                pop = 0;
                 start = SystemClock.uptimeMillis();
             }
 
             int dirToOption(float x, float y) {
-                if (Math.abs(x) < 0.4f && Math.abs(y) < 0.4f) return -1;
+                if (Math.abs(x) < 0.5f && Math.abs(y) < 0.5f) return -1;
                 if (Math.abs(y) >= Math.abs(x)) return y < 0 ? 0 : 2;
                 return x > 0 ? 1 : 3;
+            }
+
+            void lock(int i, int o, long now) {
+                if (choice[i] >= 0 || o < 0 || o >= q.options.length) return;
+                choice[i] = o;
+                at[i] = now;
+                party.buzz(i, 40);
+                sound.sfx(GameMusic.SFX_TICK);
             }
 
             void update() {
@@ -886,85 +910,136 @@ public class BoardActivity extends Activity {
                     for (int i = 1; i < Party.MAX; i++) {
                         Party.Player pl = party.players[i];
                         if (!pl.joined || choice[i] >= 0) continue;
-                        // the stick picks (and stays picked when let go), A answers
+                        // a phone answers by pushing the stick towards an answer and holding it there a moment,
+                        // or with A on the last direction pushed
                         int o = dirToOption(pl.x, pl.y);
-                        if (o >= 0 && o < q.options.length && o != aim[i]) { aim[i] = o; party.buzz(i, 15); }
-                        if (pl.aPresses != lastA[i]) {
-                            lastA[i] = pl.aPresses;
-                            if (aim[i] >= 0) { choice[i] = aim[i]; at[i] = now; party.buzz(i, 40); }
-                        }
+                        if (o >= 0 && o != aim[i]) { aim[i] = o; aimAt[i] = now; }
+                        if (o >= 0 && o == aim[i] && now - aimAt[i] > 400) lock(i, o, now);
+                        if (pl.aPresses != lastA[i]) { lastA[i] = pl.aPresses; lock(i, aim[i], now); }
                     }
                     boolean all = true;
                     for (int i = 0; i < Party.MAX; i++) if (party.players[i].joined && choice[i] < 0) all = false;
                     if (all || now - start > 20000) {
                         reveal = true;
+                        boolean anyRight = false;
                         for (int i = 0; i < Party.MAX; i++) {
                             if (choice[i] == q.answer) {
-                                // 500 for a right answer, plus up to 500 more the faster it came (0 at 20 s)
-                                score[i] += 500 + (int) Math.max(0, 500 - (at[i] - start) / 40);
+                                anyRight = true;
+                                streak[i]++;
+                                // 500 for a right answer, up to 500 more the faster it came, +100 for each right in a row
+                                gained[i] = 500 + (int) Math.max(0, 500 - (at[i] - start) / 40) + Math.min(5, streak[i] - 1) * 100;
+                                score[i] += gained[i];
                                 party.buzz(i, 60);
-                            }
+                            } else streak[i] = 0;
                         }
+                        sound.sfx(anyRight ? GameMusic.SFX_OK : GameMusic.SFX_WRONG);
                         start = now;
                     }
-                } else if (now - start > 3500) {
+                } else if (now - start > 4000) {
                     qNo++;
-                    if (qNo >= 10) {
+                    if (qNo >= qs.size()) {
                         int best = 0;
                         for (int i = 0; i < Party.MAX; i++) if (party.players[i].joined && score[i] > score[best]) best = i;
+                        sound.sfx(GameMusic.SFX_WIN);
                         endGame("Pemain " + (best + 1) + " Juara! " + score[best] + " mata");
                     } else next();
                 }
             }
 
+            /** The remote: each arrow is the answer drawn on that side, and answers at once. */
             void key(int k, boolean ok) {
-                if (reveal || choice[0] >= 0) return;
-                // each arrow picks the answer it is drawn with: ▲ A, ▶ B, ▼ C, ◀ D; OK answers
+                if (reveal) return;
                 int o = k == KeyEvent.KEYCODE_DPAD_UP ? 0 : k == KeyEvent.KEYCODE_DPAD_RIGHT ? 1
                         : k == KeyEvent.KEYCODE_DPAD_DOWN ? 2 : k == KeyEvent.KEYCODE_DPAD_LEFT ? 3 : -1;
-                if (o >= 0 && o < q.options.length) pick = o;
-                if (ok) { choice[0] = pick; at[0] = SystemClock.uptimeMillis(); }
+                lock(0, o, SystemClock.uptimeMillis());
             }
+
+            final RectF[] slot = {new RectF(), new RectF(), new RectF(), new RectF()};
 
             void draw(Canvas c, float dt) {
                 update();
-                text(c, "SIAPA JUARA?   Soalan " + (qNo + 1) + " / 10", W / 2, H * 0.08f, H * 0.04f, 0xFFFDE68A, Paint.Align.CENTER);
-                float left = 1 - Math.min(1, (SystemClock.uptimeMillis() - start) / 20000f);
-                if (!reveal) {
-                    p.setColor(0x33FFFFFF); c.drawRoundRect(W * 0.1f, H * 0.11f, W * 0.9f, H * 0.125f, 8, 8, p);
-                    p.setColor(left > 0.3f ? 0xFF4ADE80 : 0xFFF87171); c.drawRoundRect(W * 0.1f, H * 0.11f, W * 0.1f + W * 0.8f * left, H * 0.125f, 8, 8, p);
+                pop = Math.min(1, pop + dt * 3);
+                long now = SystemClock.uptimeMillis();
+                // spotlights sweeping behind the stage
+                for (int k = 0; k < 2; k++) {
+                    float ang = (float) Math.sin(t * 0.7f + k * 2.5f) * 0.5f;
+                    float bx = W * (k == 0 ? 0.15f : 0.85f);
+                    android.graphics.Path beam = beamPath;
+                    beam.reset();
+                    beam.moveTo(bx, H * 1.05f);
+                    beam.lineTo(bx + (float) Math.sin(ang - 0.12f) * H * 1.3f, H * 1.05f - (float) Math.cos(ang - 0.12f) * H * 1.3f);
+                    beam.lineTo(bx + (float) Math.sin(ang + 0.12f) * H * 1.3f, H * 1.05f - (float) Math.cos(ang + 0.12f) * H * 1.3f);
+                    beam.close();
+                    g.setColor(k == 0 ? 0x1838BDF8 : 0x18F472B6);
+                    c.drawPath(beam, g);
                 }
-                r.set(W * 0.1f, H * 0.15f, W * 0.9f, H * 0.36f);
-                g.setColor(0x55000000);
-                c.drawRoundRect(r, H * 0.03f, H * 0.03f, g);
-                wrapped(c, q.prompt, W * 0.13f, H * 0.18f, W * 0.74f, H * 0.042f, 0xFFFFFFFF, Layout.Alignment.ALIGN_CENTER);
+                float pulse = 1 + 0.03f * (float) Math.sin(t * 4);
+                text(c, "SIAPA JUARA?", W / 2, H * 0.075f, H * 0.045f * pulse, 0xFFFDE68A, Paint.Align.CENTER);
+                text(c, "Soalan " + (qNo + 1) + " / " + qs.size() + "   ·   " + (q.explain != null && q.explain.length() < 14 ? q.explain : LearnBank.SUBJECTS[q.subject]),
+                        W / 2, H * 0.115f, H * 0.026f, 0xBBFFFFFF, Paint.Align.CENTER);
+                // the timer: a ring that empties
+                float left = reveal ? 0 : 1 - Math.min(1, (now - start) / 20000f);
+                float tcx = W * 0.92f, tcy = H * 0.1f, tr = H * 0.055f;
+                g.setStyle(Paint.Style.STROKE);
+                g.setStrokeWidth(H * 0.012f);
+                g.setColor(0x33FFFFFF);
+                c.drawCircle(tcx, tcy, tr, g);
+                g.setColor(left > 0.3f ? 0xFF4ADE80 : 0xFFF87171);
+                r.set(tcx - tr, tcy - tr, tcx + tr, tcy + tr);
+                c.drawArc(r, -90, 360 * left, false, g);
+                g.setStyle(Paint.Style.FILL);
+                if (!reveal) text(c, String.valueOf((int) Math.ceil(left * 20)), tcx, tcy + H * 0.015f, H * 0.04f, 0xFFFFFFFF, Paint.Align.CENTER);
+                // the question in the middle
+                float qs0 = 0.85f + 0.15f * pop;
+                r.set(W * 0.3f, H * 0.37f, W * 0.7f, H * 0.63f);
+                c.save();
+                c.scale(qs0, qs0, W / 2, H / 2);
+                card(c, r, 0xFF1E293B, false);
+                wrapped(c, q.prompt, W * 0.32f, H * 0.4f, W * 0.36f, H * 0.036f, 0xFFFFFFFF, Layout.Alignment.ALIGN_CENTER);
+                c.restore();
+                // the four answers around it, where the remote's arrows are: ▲ top, ▶ right, ▼ bottom, ◀ left
+                slot[0].set(W * 0.3f, H * 0.16f, W * 0.7f, H * 0.33f);
+                slot[1].set(W * 0.715f, H * 0.37f, W * 0.97f, H * 0.63f);
+                slot[2].set(W * 0.3f, H * 0.67f, W * 0.7f, H * 0.84f);
+                slot[3].set(W * 0.03f, H * 0.37f, W * 0.285f, H * 0.63f);
                 String[] arrows = {"▲", "▶", "▼", "◀"};
                 int[] oc = {0xFF2563EB, 0xFFDC2626, 0xFF16A34A, 0xFFD97706};
                 for (int i = 0; i < q.options.length; i++) {
-                    float x = W * (i % 2 == 0 ? 0.1f : 0.51f), y = H * (0.4f + (i / 2) * 0.16f);
-                    r.set(x, y, x + W * 0.39f, y + H * 0.13f);
-                    boolean on = reveal ? i == q.answer : (choice[0] < 0 ? i == pick : i == choice[0]);
-                    card(c, r, reveal ? (i == q.answer ? 0xFF16A34A : 0xFF475569) : oc[i], on);
-                    fit(c, arrows[i] + "  " + "ABCD".charAt(i) + ".  " + q.options[i], r.centerX(), r.centerY(), r.width() * 0.9f, H * 0.04f, 0xFFFFFFFF);
-                    // a dot for every player pointing at (or locked on) this answer
-                    if (!reveal) for (int pl = 0; pl < Party.MAX; pl++) {
-                        int mine = choice[pl] >= 0 ? choice[pl] : pl == 0 ? pick : aim[pl];
-                        if (!party.players[pl].joined || mine != i) continue;
+                    RectF s = slot[i];
+                    boolean mine = choice[0] == i;
+                    int col = reveal ? (i == q.answer ? 0xFF16A34A : 0xFF334155) : oc[i];
+                    card(c, s, col, reveal ? i == q.answer : mine);
+                    float ax = s.left + H * 0.05f, ay = s.centerY();
+                    g.setColor(0x55000000);
+                    c.drawCircle(ax, ay, H * 0.035f, g);
+                    text(c, arrows[i], ax, ay + H * 0.014f, H * 0.04f, 0xFFFFFFFF, Paint.Align.CENTER);
+                    float tw = s.width() - H * 0.12f;
+                    fit(c, q.options[i], s.left + H * 0.1f + tw / 2, ay, tw, H * 0.038f, 0xFFFFFFFF);
+                    // a dot for each player on this answer
+                    for (int pl = 0; pl < Party.MAX; pl++) {
+                        if (!party.players[pl].joined) continue;
+                        int on = choice[pl] >= 0 ? choice[pl] : aim[pl];
+                        if (on != i) continue;
                         g.setColor(PCOL[pl]);
-                        c.drawCircle(r.left + H * 0.03f + pl * H * 0.035f, r.top + H * 0.03f, H * (choice[pl] >= 0 ? 0.014f : 0.009f), g);
+                        c.drawCircle(s.right - H * 0.03f - pl * H * 0.035f, s.top + H * 0.03f, H * (choice[pl] >= 0 ? 0.014f : 0.009f), g);
                     }
                 }
+                // the players along the bottom
                 for (int i = 0; i < Party.MAX; i++) {
                     if (!party.players[i].joined) continue;
-                    float x = W * (0.12f + i * 0.2f);
-                    String st = reveal ? (choice[i] == q.answer ? "✓" : "✗") : choice[i] >= 0 ? "✔ dikunci"
-                            : (i == 0 ? "pilih " + "ABCD".charAt(pick) : aim[i] >= 0 ? "pilih " + "ABCD".charAt(aim[i]) + ", tekan A" : "…");
-                    text(c, "P" + (i + 1) + "  " + score[i] + "  " + st, x, H * 0.9f, H * 0.032f, PCOL[i], Paint.Align.LEFT);
+                    float x = W * (0.06f + i * 0.235f);
+                    String st = reveal ? (choice[i] == q.answer ? "✓ +" + gained[i] : "✗") : choice[i] >= 0 ? "✔ sudah jawab" : "berfikir…";
+                    g.setColor(PCOL[i]);
+                    c.drawCircle(x, H * 0.905f, H * 0.018f, g);
+                    text(c, "P" + (i + 1) + "  " + score[i] + "   " + st + (streak[i] >= 2 ? "  🔥" + streak[i] : ""),
+                            x + H * 0.03f, H * 0.915f, H * 0.03f, 0xFFFFFFFF, Paint.Align.LEFT);
                 }
-                if (!reveal) text(c, "Remote: ▲▶▼◀ pilih jawapan, OK kunci   ·   Telefon: tolak kayu bedik ke arah jawapan, tekan A",
-                        W / 2, H * 0.97f, H * 0.024f, 0x99FFFFFF, Paint.Align.CENTER);
+                if (!reveal) text(c, "Remote: tekan anak panah ke arah jawapan   ·   Telefon: tolak kayu bedik ke arah jawapan",
+                        W / 2, H * 0.975f, H * 0.024f, 0x99FFFFFF, Paint.Align.CENTER);
             }
         }
+
+        final android.graphics.Path beamPath = new android.graphics.Path();
 
         // ================================================================ Teka Kata
 

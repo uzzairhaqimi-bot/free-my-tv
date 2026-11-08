@@ -96,6 +96,7 @@ final class Kancil {
     }
 
     final Party party;
+    final GameSound sound;
     final Pl[] pls = new Pl[4];
     final List<Ent> ents = new ArrayList<>();
     char[][] map;
@@ -116,8 +117,9 @@ final class Kancil {
     private final Path far = new Path(), near = new Path();
     private final float[] cloudX = {0.1f, 0.45f, 0.8f, 1.2f}, cloudY = {0.12f, 0.2f, 0.08f, 0.16f};
 
-    Kancil(Party party) {
+    Kancil(Party party, GameSound sound) {
         this.party = party;
+        this.sound = sound;
         for (int i = 0; i < 4; i++) { pls[i] = new Pl(); pls[i].seat = i; }
         tx.setTypeface(Typeface.create("sans-serif-black", Typeface.BOLD));
     }
@@ -325,6 +327,7 @@ final class Kancil {
         if (jump && !pl.jumpWas) pl.buffer = 0.12f; else pl.buffer -= dt;
         if (pl.buffer > 0 && pl.coyote > 0) {
             pl.vy = -JUMP;
+            sound.sfx(GameMusic.SFX_JUMP);
             pl.buffer = 0;
             pl.coyote = 0;
             pl.ground = false;
@@ -369,12 +372,13 @@ final class Kancil {
         for (int yy = (int) pl.y; yy <= (int) (pl.y + PH); yy++) for (int xx = (int) pl.x; xx <= (int) (pl.x + PW); xx++) {
             if (yy < 0 || yy >= ROWS || xx < 0 || xx >= cols) continue;
             char k = map[yy][xx];
-            if (k == 'r') { map[yy][xx] = '.'; pl.fruit++; }
-            else if (k == 't') { map[yy][xx] = '.'; pl.hearts = Math.min(5, pl.hearts + 1); party.buzz(pl.seat, 40); }
+            if (k == 'r') { map[yy][xx] = '.'; pl.fruit++; sound.sfx(GameMusic.SFX_COIN); }
+            else if (k == 't') { map[yy][xx] = '.'; pl.hearts = Math.min(5, pl.hearts + 1); party.buzz(pl.seat, 40); sound.sfx(GameMusic.SFX_OK); }
             else if (k == 'P') { pl.cpX = xx; pl.cpY = yy; map[yy][xx] = 'p'; }
             else if (k == 'p') { pl.cpX = xx; pl.cpY = yy; }
             else if (k == 'E') {
                 pl.done = true;
+                sound.sfx(GameMusic.SFX_WIN);
                 if (firstDone < 0) firstDone = time;
                 party.buzz(pl.seat, 120);
             } else if (k == '^' && pl.y + PH > yy + 0.45f) hurt(pl, false);
@@ -403,6 +407,7 @@ final class Kancil {
         if (!fell && pl.inv > 0) return;
         pl.hearts--;
         pl.inv = 1.6f;
+        sound.sfx(GameMusic.SFX_WRONG);
         party.buzz(pl.seat, 200);
         if (pl.hearts <= 0) {   // no game over for children: back to the flag, with half the fruit
             pl.hearts = 3;

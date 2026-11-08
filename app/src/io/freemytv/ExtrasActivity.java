@@ -31,6 +31,7 @@ public class ExtrasActivity extends Activity {
     private static final String[] SPEEDS = {"Perlahan", "Sederhana", "Laju"};
     private static final String[] WIDTHS = {"Nipis", "Sederhana", "Tebal"};
     private static final String[] VOLS = {"Perlahan", "Sederhana", "Kuat"};
+    private static final String[] GAME_MUSIC = {"Campur: lagu saya + lagu semangat", "Lagu ciptaan Bijak sahaja", "Pautan saya sahaja", "Senyap"};
 
     private interface Val { String get(); }
 
@@ -58,6 +59,8 @@ public class ExtrasActivity extends Activity {
         if (i.hasExtra("music")) { x.musicLink = String.valueOf(i.getStringExtra("music")).trim(); x.music = !Extras.parse(x.musicLink).empty(); any = true; }
         if (i.hasExtra("videoEvery")) { x.videoEvery = Math.max(0, Math.min(60, i.getIntExtra("videoEvery", 5))); any = true; }
         if (i.hasExtra("musicVol")) { x.musicVol = Math.max(0, Math.min(2, i.getIntExtra("musicVol", 1))); any = true; }
+        if (i.hasExtra("gameMusicLink")) { x.gameMusicLink = String.valueOf(i.getStringExtra("gameMusicLink")).trim(); any = true; }
+        if (i.hasExtra("gameMusic")) { x.gameMusic = Math.max(0, Math.min(3, i.getIntExtra("gameMusic", 0))); any = true; }
         if (i.hasExtra("quotes")) { x.quotes = i.getBooleanExtra("quotes", x.quotes); any = true; }
         if (i.hasExtra("ledStyle")) { x.ledStyle = Math.max(0, Math.min(2, i.getIntExtra("ledStyle", 0))); any = true; }
         if (!any) return false;
@@ -129,6 +132,14 @@ public class ExtrasActivity extends Activity {
             return n == 0 ? "Tiada" : n + " pautan (rawak)";
         }, this::editMusic);
         row("Kelantangan muzik", () -> VOLS[x.musicVol], () -> x.musicVol = (x.musicVol + 1) % 3);
+
+        header("Muzik Dalam Permainan");
+        row("Jenis muzik", () -> GAME_MUSIC[x.gameMusic], () -> x.gameMusic = (x.gameMusic + 1) % GAME_MUSIC.length);
+        row("Pautan lagu permainan", () -> {
+            Extras.Source s = Extras.parse(x.gameMusicLink);
+            int n = s.youtube.size() + s.direct.size();
+            return n == 0 ? "Tiada" : n + " pautan";
+        }, this::editGameMusic);
 
         header("Kata-kata Semangat");
         row("Tukar setiap minit", () -> x.quotes ? "Hidup" : "Mati", () -> x.quotes = !x.quotes);
@@ -234,6 +245,28 @@ public class ExtrasActivity extends Activity {
                     x.musicLink = e.getText().toString().trim();
                     if (!Extras.parse(x.musicLink).empty()) x.music = true;
                     else Toast.makeText(this, "Tiada pautan yang sah", Toast.LENGTH_SHORT).show();
+                    x.save(this);
+                    refresh();
+                })
+                .setNegativeButton("Batal", null)
+                .show();
+    }
+
+    private void editGameMusic() {
+        EditText e = new EditText(this);
+        e.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_MULTI_LINE | InputType.TYPE_TEXT_VARIATION_URI);
+        e.setMinLines(2);
+        e.setHint("Pautan YouTube / playlist, atau fail .mp3 (https)");
+        e.setText(x.gameMusicLink);
+        LinearLayout wrap = new LinearLayout(this);
+        wrap.setPadding(dp(20), dp(10), dp(20), 0);
+        wrap.addView(e, new LinearLayout.LayoutParams(-1, -2));
+        new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle("Lagu dalam permainan")
+                .setMessage("Dimainkan dalam Papan Permainan dan Kelas Bijak. Satu pautan setiap baris.")
+                .setView(wrap)
+                .setPositiveButton("Simpan", (d, w) -> {
+                    x.gameMusicLink = e.getText().toString().trim();
                     x.save(this);
                     refresh();
                 })
