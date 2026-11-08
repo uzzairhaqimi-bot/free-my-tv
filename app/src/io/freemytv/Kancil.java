@@ -141,7 +141,12 @@ final class Kancil {
 
     void load(int w) {
         world = w;
-        int[] seq = LEVELS[w];
+        int[] seq = LEVELS[w].clone();
+        java.util.Random shuffle = new java.util.Random();
+        for (int i = seq.length - 2; i > 1; i--) {   // keep the start and the end; shuffle the rest
+            int j = 1 + shuffle.nextInt(i);
+            int tt = seq[i]; seq[i] = seq[j]; seq[j] = tt;
+        }
         cols = 0;
         for (int id : seq) cols += width(CH[id]);
         map = new char[ROWS][cols];

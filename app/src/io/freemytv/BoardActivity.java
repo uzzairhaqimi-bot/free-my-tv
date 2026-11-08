@@ -216,6 +216,8 @@ public class BoardActivity extends Activity {
         }
 
         float menuScroll;
+        int congkakLevel = 1;
+        static final String[] CONGKAK_LEVELS = {"Mudah", "Sederhana", "Pakar"};
         final android.graphics.Bitmap[] icons = new android.graphics.Bitmap[NAMES.length];
 
         /** The game's picture, drawn once at this screen's size; s is half its height. */
@@ -237,7 +239,8 @@ public class BoardActivity extends Activity {
             }
             int min = game == CONGKAK ? 2 : 2, max = game == CONGKAK ? 2 : 4;
             players = Math.max(min, Math.min(max, players));
-            text(c, "Bilangan pemain:  ◀  " + players + "  ▶", W / 2, H * 0.3f, H * 0.045f, setupRow == 0 ? 0xFF67E8F9 : 0xFFFFFFFF, Paint.Align.CENTER);
+            if (game == CONGKAK) text(c, "Kepandaian TV:  ◀  " + CONGKAK_LEVELS[congkakLevel] + "  ▶", W / 2, H * 0.3f, H * 0.045f, setupRow == 0 ? 0xFF67E8F9 : 0xFFFFFFFF, Paint.Align.CENTER);
+            else text(c, "Bilangan pemain:  ◀  " + players + "  ▶", W / 2, H * 0.3f, H * 0.045f, setupRow == 0 ? 0xFF67E8F9 : 0xFFFFFFFF, Paint.Align.CENTER);
             for (int i = 0; i < players; i++) {
                 float y = H * (0.42f + i * 0.1f);
                 boolean on = setupRow == i + 1;
@@ -311,7 +314,7 @@ public class BoardActivity extends Activity {
 
         final class Harta {
             // 24 squares around the board. type: 0 start, 1 town, 2 peluang, 3 nasib, 4 cukai, 5 rehat, 6 jem
-            final String[] name = {"MULA", "Kangar", "Alor Setar", "Peluang", "George Town", "Ipoh", "Rehat",
+            String[] name = {"MULA", "Kangar", "Alor Setar", "Peluang", "George Town", "Ipoh", "Rehat",
                     "Kuala Kubu", "Shah Alam", "Nasib", "Seremban", "Melaka", "Jem Trafik",
                     "Johor Bahru", "Kuantan", "Cukai Jalan", "Kuala Terengganu", "Kota Bharu", "Rehat",
                     "Kuching", "Miri", "Peluang", "Kota Kinabalu", "Kuala Lumpur"};
@@ -331,12 +334,25 @@ public class BoardActivity extends Activity {
             String[] NASIB = {"Bayar yuran tuisyen: −RM60", "Basikal pancit, baiki: −RM30", "Derma ke sekolah: −RM50",
                     "Beli buku rujukan: −RM40", "Undur 2 petak", "Hadiah hari jadi: +RM80"};
 
+            // three maps: the same board, different towns
+            final String[] MAP = {"Semenanjung & Borneo", "Utara & Pantai Timur", "Sabah & Sarawak"};
+            final String[][] TOWNS = {
+                    {"Kangar", "Alor Setar", "George Town", "Ipoh", "Kuala Kubu", "Shah Alam", "Seremban", "Melaka", "Johor Bahru", "Kuantan",
+                            "Kuala Terengganu", "Kota Bharu", "Kuching", "Miri", "Kota Kinabalu", "Kuala Lumpur"},
+                    {"Padang Besar", "Arau", "Langkawi", "Sungai Petani", "Kulim", "Taiping", "Kuala Kangsar", "Gerik", "Tanah Merah", "Pasir Mas",
+                            "Besut", "Kemaman", "Dungun", "Cherating", "Pekan", "Kota Bharu"},
+                    {"Lawas", "Limbang", "Bintulu", "Sibu", "Mukah", "Sri Aman", "Kapit", "Kuching", "Labuan", "Beaufort",
+                            "Keningau", "Ranau", "Kudat", "Sandakan", "Tawau", "Kota Kinabalu"}};
+            int map;
+
             void start() {
+                map = rnd.nextInt(MAP.length);
+                for (int i = 0, k = 0; i < 24; i++) if (type[i] == 1) name[i] = TOWNS[map][k++];
                 for (int i = 0; i < 24; i++) { owner[i] = -1; houses[i] = 0; }
                 for (int i = 0; i < 4; i++) { pos[i] = 0; money[i] = 1500; skip[i] = 0; out[i] = i >= players; drawPos[i] = 0; }
                 phase = 0;
                 rounds = 0;
-                say("Pemain 1: tekan OK untuk baling dadu");
+                say("Peta: " + MAP[map] + "  ·  Pemain 1: tekan OK untuk baling dadu");
             }
 
             int rent(int sq) {
@@ -548,8 +564,23 @@ public class BoardActivity extends Activity {
         final Ular ular = new Ular();
 
         final class Ular {
-            final int[][] ladders = {{3, 21}, {8, 30}, {28, 55}, {36, 44}, {50, 67}, {71, 92}, {80, 99}};
-            final int[][] snakes = {{17, 4}, {48, 26}, {62, 19}, {64, 42}, {87, 53}, {93, 73}, {95, 75}, {98, 79}};
+            final int[][] ladders = new int[7][2], snakes = new int[8][2];
+
+            /** Places ladders and snakes anew: every square used at most once, never 1 or 100. */
+            void newBoard() {
+                boolean[] used = new boolean[101];
+                used[1] = used[100] = true;
+                for (int[] l : ladders) {
+                    int a, b;
+                    do { a = 2 + rnd.nextInt(78); b = a + 10 + rnd.nextInt(22); } while (b > 99 || used[a] || used[b]);
+                    used[a] = used[b] = true; l[0] = a; l[1] = b;
+                }
+                for (int[] sn : snakes) {
+                    int a, b;
+                    do { a = 15 + rnd.nextInt(84); b = a - 10 - rnd.nextInt(28); } while (b < 2 || a > 99 || used[a] || used[b]);
+                    used[a] = used[b] = true; sn[0] = a; sn[1] = b;
+                }
+            }
             final int[] pos = new int[4];
             final float[] draw = new float[4];
             int phase, steps, pending, pick;
@@ -558,9 +589,10 @@ public class BoardActivity extends Activity {
             boolean climbing;   // question for a ladder (true) or a snake (false)
 
             void start() {
+                newBoard();
                 for (int i = 0; i < 4; i++) { pos[i] = 1; draw[i] = 1; }
                 phase = 0;
-                say("Pemain 1: OK untuk baling dadu");
+                say("Papan baru! Pemain 1: OK untuk baling dadu");
             }
 
             void cell(int n, RectF out) {
@@ -772,12 +804,43 @@ public class BoardActivity extends Activity {
             }
 
             int best(int pl) {
+                int lv = congkakLevel;
+                if (lv == 0 && rnd.nextFloat() < 0.6f) {   // easy: often just any hole
+                    int h;
+                    do { h = rnd.nextInt(7); } while (g2.s[pl * 8 + h] == 0);
+                    return h;
+                }
+                if (lv == 2) return bestDeep(pl);
                 int bestH = -1, bestV = Integer.MIN_VALUE;
                 for (int h = 0; h < 7; h++) {
                     if (g2.s[pl * 8 + h] == 0) continue;
                     CongkakRules c = g2.copy();
                     boolean again = c.move(pl, h);
                     int v = c.s[CongkakRules.store(pl)] - c.s[CongkakRules.store(1 - pl)] + (again ? 6 : 0);
+                    if (v > bestV) { bestV = v; bestH = h; }
+                }
+                return bestH;
+            }
+
+            /** Expert: looks one reply ahead (the other side's best answer to each move). */
+            int bestDeep(int pl) {
+                int bestH = -1, bestV = Integer.MIN_VALUE;
+                for (int h = 0; h < 7; h++) {
+                    if (g2.s[pl * 8 + h] == 0) continue;
+                    CongkakRules c = g2.copy();
+                    boolean again = c.move(pl, h);
+                    int v;
+                    if (again || !c.canMove(1 - pl)) v = c.s[CongkakRules.store(pl)] - c.s[CongkakRules.store(1 - pl)] + 6;
+                    else {
+                        int worst = Integer.MAX_VALUE;
+                        for (int h2 = 0; h2 < 7; h2++) {
+                            if (c.s[(1 - pl) * 8 + h2] == 0) continue;
+                            CongkakRules c2 = c.copy();
+                            boolean again2 = c2.move(1 - pl, h2);
+                            worst = Math.min(worst, c2.s[CongkakRules.store(pl)] - c2.s[CongkakRules.store(1 - pl)] - (again2 ? 6 : 0));
+                        }
+                        v = worst == Integer.MAX_VALUE ? 0 : worst;
+                    }
                     if (v > bestV) { bestV = v; bestH = h; }
                 }
                 return bestH;
@@ -970,6 +1033,7 @@ public class BoardActivity extends Activity {
                                 streak[i]++;
                                 // 500 for a right answer, up to 500 more the faster it came, +100 for each right in a row
                                 gained[i] = 500 + (int) Math.max(0, 500 - (at[i] - start) / 40) + Math.min(5, streak[i] - 1) * 100;
+                                if (qNo >= qs.size() - 3) gained[i] *= 2;   // the final round counts double
                                 score[i] += gained[i];
                                 party.buzz(i, 60);
                             } else streak[i] = 0;
@@ -1025,7 +1089,8 @@ public class BoardActivity extends Activity {
                     c.drawPath(beam, g);
                 }
                 float pulse = 1 + 0.03f * (float) Math.sin(t * 4);
-                text(c, "SIAPA JUARA?", W / 2, H * 0.075f, H * 0.045f * pulse, 0xFFFDE68A, Paint.Align.CENTER);
+                boolean finalRound = qNo >= qs.size() - 3;
+                text(c, finalRound ? "PUSINGAN AKHIR · MARKAH ×2" : "SIAPA JUARA?", W / 2, H * 0.075f, H * 0.045f * pulse, finalRound ? 0xFFF472B6 : 0xFFFDE68A, Paint.Align.CENTER);
                 text(c, "Soalan " + (qNo + 1) + " / " + qs.size() + "   ·   " + (q.explain != null && q.explain.length() < 14 ? q.explain : LearnBank.SUBJECTS[q.subject]),
                         W / 2, H * 0.115f, H * 0.026f, 0xBBFFFFFF, Paint.Align.CENTER);
                 // the timer: a ring that empties
@@ -1241,6 +1306,7 @@ public class BoardActivity extends Activity {
                     if (setupRow == 0 && (k == KeyEvent.KEYCODE_DPAD_LEFT || k == KeyEvent.KEYCODE_DPAD_RIGHT)) {
                         players += k == KeyEvent.KEYCODE_DPAD_RIGHT ? 1 : -1;
                         players = Math.max(2, Math.min(game == CONGKAK ? 2 : 4, players));
+                        if (game == CONGKAK) congkakLevel = (congkakLevel + (k == KeyEvent.KEYCODE_DPAD_RIGHT ? 1 : 2)) % 3;
                     }
                     if (setupRow >= 1 && setupRow <= players && (ok || k == KeyEvent.KEYCODE_DPAD_LEFT || k == KeyEvent.KEYCODE_DPAD_RIGHT)) {
                         bot[setupRow - 1] = !bot[setupRow - 1];

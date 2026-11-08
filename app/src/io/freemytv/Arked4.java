@@ -198,7 +198,7 @@ final class Arked4 {
         mod = game >= WIRA ? mod(game) : null;
         if (mod != null) mod.build();
         else if (game == LUMBA) buildTrack();
-        else if (game == LABIRIN) buildMaze();
+        else if (game == LABIRIN) { mazeLevel = 1; buildMaze(); }
         else if (game == ANGKASA) startSpace();
         else startSilat();
     }
@@ -285,24 +285,31 @@ final class Arked4 {
     private float firstFinish = -1;
     private final int[] pads = {14, 34, 55};
 
+    static final String[] TRACKS = {"Litar Hutan", "Litar Pantai", "Litar Bandar Malam", "Litar Ladang"};
+    private static final int[][] TRACK_COL = {{0xFF4D7C0F, 0xFF365314}, {0xFFFDE68A, 0xFFF59E0B}, {0xFF1E293B, 0xFF0F172A}, {0xFF65A30D, 0xFFA16207}};
+    private int track;
+
     private void buildTrack() {
+        track = rnd.nextInt(TRACKS.length);
         float cx = W / 2, cy = H * 0.54f, rx = W * 0.4f, ry = H * 0.36f;
+        double[][] shapes = {{0.12, 3, 0.18, 2, 0.08, 4}, {0.2, 2, 0.1, 3, 0.12, 5}, {0.08, 4, 0.22, 2, 0.05, 3}, {0.16, 5, 0.12, 3, 0.1, 2}};
+        double[] q = shapes[track];
         for (int i = 0; i < N; i++) {
             double a = i * Math.PI * 2 / N;
-            tx0[i] = cx + rx * (float) (Math.cos(a) * (1 + 0.12 * Math.sin(3 * a)));
-            ty0[i] = cy + ry * (float) (Math.sin(a) * (1 + 0.18 * Math.cos(2 * a)) - 0.08 * Math.sin(4 * a));
+            tx0[i] = cx + rx * (float) (Math.cos(a) * (1 + q[0] * Math.sin(q[1] * a)));
+            ty0[i] = cy + ry * (float) (Math.sin(a) * (1 + q[2] * Math.cos(q[3] * a)) - q[4] * Math.sin(q[5] * a));
         }
         hw = H * 0.072f;
         // the scenery is drawn once
         bg = Bitmap.createBitmap((int) W, (int) H, Bitmap.Config.RGB_565);
         Canvas c = new Canvas(bg);
         Paint a = new Paint(Paint.ANTI_ALIAS_FLAG);
-        a.setShader(new LinearGradient(0, 0, 0, H, 0xFF4D7C0F, 0xFF365314, Shader.TileMode.CLAMP));
+        a.setShader(new LinearGradient(0, 0, 0, H, TRACK_COL[track][0], TRACK_COL[track][1], Shader.TileMode.CLAMP));
         c.drawRect(0, 0, W, H, a);
         a.setShader(null);
-        Random rr = new Random(9);
-        for (int i = 0; i < 400; i++) {   // grass tufts
-            a.setColor(rr.nextBoolean() ? 0xFF65A30D : 0xFF3F6212);
+        Random rr = new Random(9 + track);
+        for (int i = 0; i < 400; i++) {   // grass tufts (sand, city lights, crops)
+            a.setColor(track == 2 ? (rr.nextInt(6) == 0 ? 0xFFFDE047 : 0xFF334155) : rr.nextBoolean() ? 0xFF65A30D : 0xFF3F6212);
             c.drawCircle(rr.nextFloat() * W, rr.nextFloat() * H, H * 0.004f, a);
         }
         Path track = new Path();
@@ -492,6 +499,10 @@ final class Arked4 {
             String s = pl.done ? "Tamat #" + pl.place : "Pusingan " + Math.max(1, Math.min(LAPS, pl.lap + 1)) + "/" + LAPS + "   #" + pl.place;
             hudBox(c, pl.seat, (pl.bot ? "TV  " : "") + s);
         }
+        tx.setTextAlign(Paint.Align.RIGHT);
+        tx.setTextSize(H * 0.026f);
+        tx.setColor(0xCCFFFFFF);
+        c.drawText(TRACKS[track], W * 0.99f, H * 0.1f, tx);
     }
 
     private void car(Canvas c, float x, float y, float ang, int col, boolean turbo, float t) {
@@ -526,6 +537,8 @@ final class Arked4 {
     private int dotsLeft;
     private final float[][] cats = new float[3][6];   // x, y, dir, home timer, scared, speed
     private final int[] DX = {1, 0, -1, 0}, DY = {0, 1, 0, -1};
+
+    int mazeLevel = 1;
 
     private void buildMaze() {
         for (boolean[] row : wall) java.util.Arrays.fill(row, true);
@@ -575,7 +588,9 @@ final class Arked4 {
             if (dot[(int) pl.y][(int) pl.x] == 1) { dot[(int) pl.y][(int) pl.x] = 0; dotsLeft--; }
         }
         for (int i = 0; i < cats.length; i++) {
-            cats[i][0] = MC / 2 - 1 + i; cats[i][1] = MR / 2; cats[i][2] = 3; cats[i][3] = 2 + i * 2; cats[i][4] = 0; cats[i][5] = 3.4f;
+            cats[i][0] = MC / 2 - 1 + i; cats[i][1] = MR / 2; cats[i][2] = 3; cats[i][3] = 2 + i * 2; cats[i][4] = 0;
+            cats[i][5] = 3.2f + mazeLevel * 0.35f;
+            if (i >= 1 + mazeLevel) cats[i][3] = 999;   // fewer cats on the first levels
         }
         bg = Bitmap.createBitmap((int) W, (int) H, Bitmap.Config.RGB_565);
         Canvas c = new Canvas(bg);
@@ -726,7 +741,14 @@ final class Arked4 {
                 }
             }
         }
-        if (dotsLeft <= 0 || time > 150) {
+        if (dotsLeft <= 0 && mazeLevel < 3) {   // the next level: a new maze, more and faster cats
+            mazeLevel++;
+            buildMaze();
+            countdown = 2;
+            sound.sfx(GameMusic.SFX_WIN);
+            return;
+        }
+        if (dotsLeft <= 0 || time > 240) {
             P best = null;
             for (P pl : ps) if (pl.on && (best == null || pl.score > best.score)) best = pl;
             finish(best == null ? "Tamat!" : who(best) + " tikus paling hebat: " + best.score + " mata!");
@@ -760,12 +782,11 @@ final class Arked4 {
             mouse(c, px, py, cell * 0.42f, Party.COLORS[pl.seat], pl.dir, pl.power > 0, t);
             label(c, pl, px, py - cell * 0.45f);
         }
-        long left = Math.max(0, 150 - (long) time);
         for (P pl : ps) if (pl.on) hudBox(c, pl.seat, (pl.bot ? "TV  " : "") + pl.score + " mata");
         tx.setTextAlign(Paint.Align.RIGHT);
         tx.setTextSize(H * 0.026f);
         tx.setColor(0xCCFFFFFF);
-        c.drawText(left / 60 + ":" + String.format(java.util.Locale.US, "%02d", left % 60), W * 0.99f, H * 0.045f, tx);
+        c.drawText("Tahap " + mazeLevel + "/3", W * 0.99f, H * 0.1f, tx);
     }
 
     private void mouse(Canvas c, float x, float y, float s, int col, int dir, boolean power, float t) {
@@ -1076,16 +1097,38 @@ final class Arked4 {
     private final RectF[] plat = {new RectF(), new RectF(), new RectF(), new RectF()};   // [0] the main floor
     private static final float SILAT_TIME = 120;
 
+    static final String[] ARENA = {"Gelanggang Kampung", "Jeti Nelayan", "Puncak Bukit"};
+    private int arena;
+
+    /** Is x above the ground floor (the two jetties count in that arena)? */
+    private boolean overFloor(float x) {
+        return x > plat[0].left && x < plat[0].right || arena == 1 && x > plat[1].left && x < plat[1].right;
+    }
+
     private void startSilat() {
-        plat[0].set(W * 0.16f, H * 0.72f, W * 0.84f, H * 0.78f);
-        plat[1].set(W * 0.22f, H * 0.5f, W * 0.38f, H * 0.52f);
-        plat[2].set(W * 0.62f, H * 0.5f, W * 0.78f, H * 0.52f);
-        plat[3].set(W * 0.42f, H * 0.3f, W * 0.58f, H * 0.32f);
+        arena = rnd.nextInt(ARENA.length);
+        if (arena == 0) {
+            plat[0].set(W * 0.16f, H * 0.72f, W * 0.84f, H * 0.78f);
+            plat[1].set(W * 0.22f, H * 0.5f, W * 0.38f, H * 0.52f);
+            plat[2].set(W * 0.62f, H * 0.5f, W * 0.78f, H * 0.52f);
+            plat[3].set(W * 0.42f, H * 0.3f, W * 0.58f, H * 0.32f);
+        } else if (arena == 1) {   // two jetties with a gap, a plank above
+            plat[0].set(W * 0.1f, H * 0.72f, W * 0.42f, H * 0.78f);
+            plat[1].set(W * 0.58f, H * 0.72f, W * 0.9f, H * 0.78f);
+            plat[2].set(W * 0.4f, H * 0.52f, W * 0.6f, H * 0.54f);
+            plat[3].set(W * 0.12f, H * 0.38f, W * 0.26f, H * 0.4f);
+        } else {   // a narrow summit with ledges
+            plat[0].set(W * 0.3f, H * 0.72f, W * 0.7f, H * 0.78f);
+            plat[1].set(W * 0.12f, H * 0.58f, W * 0.28f, H * 0.6f);
+            plat[2].set(W * 0.72f, H * 0.58f, W * 0.88f, H * 0.6f);
+            plat[3].set(W * 0.4f, H * 0.42f, W * 0.6f, H * 0.44f);
+        }
         int k = 0;
         for (P pl : ps) {
             if (!pl.on) continue;
-            pl.x = W * (0.25f + k * 0.17f);
-            pl.y = plat[0].top;
+            RectF home = arena == 1 && k % 2 == 1 ? plat[1] : plat[0];   // everyone starts on solid ground
+            pl.x = home.left + home.width() * (0.2f + 0.6f * ((k / (arena == 1 ? 2 : 1)) % 4) / 3f);
+            pl.y = home.top;
             pl.vx = pl.vy = 0;
             pl.lives = 3;
             pl.dmg = 0;
@@ -1140,8 +1183,8 @@ final class Arked4 {
                     float d = Math.abs(o.x - pl.x) + Math.abs(o.y - pl.y);
                     if (d < bd) { bd = d; tgt = o; }
                 }
-                boolean offStage = pl.x < plat[0].left || pl.x > plat[0].right;
-                if (offStage) move = pl.x < W / 2 ? 1 : -1;
+                boolean offStage = !overFloor(pl.x);
+                if (offStage) move = arena == 1 && pl.x > W / 2 ? (pl.x < plat[1].left ? 1 : -1) : pl.x < plat[0].left ? 1 : -1;
                 else if (tgt != null) move = Math.abs(tgt.x - pl.x) > H * 0.06f ? Math.signum(tgt.x - pl.x) : 0;
                 else move = 0;
                 jump = (offStage && pl.vy > 0 && pl.y > plat[0].top - H * 0.05f && pl.jumps < 2)
@@ -1227,7 +1270,7 @@ final class Arked4 {
         tx.setTextAlign(Paint.Align.RIGHT);
         tx.setTextSize(H * 0.026f);
         tx.setColor(0xCCFFFFFF);
-        c.drawText(left / 60 + ":" + String.format(java.util.Locale.US, "%02d", left % 60), W * 0.99f, H * 0.045f, tx);
+        c.drawText(ARENA[arena] + "  " + left / 60 + ":" + String.format(java.util.Locale.US, "%02d", left % 60), W * 0.99f, H * 0.1f, tx);
     }
 
     /** A silat fighter: a tanjak (folded headcloth) and a sampin in the player's colour. (x, y) are the feet. */
