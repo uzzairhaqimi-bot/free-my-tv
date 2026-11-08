@@ -424,6 +424,54 @@ final class FancyArt {
                 p.setStrokeCap(Paint.Cap.BUTT);
                 break;
             }
+            case 10: {   // Wira Hutan: a tree and a ranger's hat
+                p.setColor(0xFF422006);
+                c.drawRect(cx - s * 0.12f, cy - s * 0.1f, cx + s * 0.12f, cy + s, p);
+                p.setColor(0xFF16A34A);
+                c.drawCircle(cx, cy - s * 0.35f, s * 0.7f, p);
+                p.setColor(0xFF166534);
+                c.drawRect(cx - s * 0.75f, cy + s * 0.55f, cx - s * 0.05f, cy + s * 0.65f, p);
+                c.drawRect(cx - s * 0.6f, cy + s * 0.32f, cx - s * 0.2f, cy + s * 0.58f, p);
+                p.setColor(0xFF22D3EE);
+                c.drawCircle(cx + s * 0.6f, cy + s * 0.5f, s * 0.12f, p);
+                c.drawCircle(cx + s * 0.85f, cy + s * 0.5f, s * 0.08f, p);
+                break;
+            }
+            case 11: {   // Pendekar Kampung: a tanjak against a pirate flag
+                p.setColor(0xFF111827);
+                c.drawRect(cx - s * 0.9f, cy - s * 0.8f, cx + s * 0.1f, cy - s * 0.1f, p);
+                p.setColor(0xFFFFFFFF);
+                c.drawCircle(cx - s * 0.4f, cy - s * 0.5f, s * 0.16f, p);
+                p.setColor(0xFFEAB308);
+                Path tj = new Path();
+                tj.moveTo(cx - s * 0.2f, cy + s * 0.6f); tj.lineTo(cx + s * 0.4f, cy - s * 0.4f); tj.lineTo(cx + s * 0.9f, cy + s * 0.6f); tj.close();
+                c.drawPath(tj, p);
+                p.setColor(0xFFB91C1C);
+                c.drawRect(cx - s * 0.2f, cy + s * 0.55f, cx + s * 0.9f, cy + s * 0.75f, p);
+                break;
+            }
+            case 12: {   // Hujan Buah: falling fruit
+                int[] fc = {0xFFEF4444, 0xFFFACC15, 0xFF8B5CF6, 0xFF22C55E};
+                for (int k = 0; k < 4; k++) {
+                    float fx = cx + (k % 2 == 0 ? -0.35f : 0.35f) * s, fy = cy + (k / 2 == 0 ? -0.35f : 0.35f) * s;
+                    p.setColor(fc[k]);
+                    c.drawCircle(fx, fy, s * 0.32f, p);
+                    p.setColor(0x66FFFFFF);
+                    c.drawCircle(fx - s * 0.1f, fy - s * 0.1f, s * 0.09f, p);
+                }
+                break;
+            }
+            case 13: {   // Perang Belon Air: a water balloon and a splash
+                p.setColor(0xFF38BDF8);
+                c.drawOval(cx - s * 0.45f, cy - s * 0.75f, cx + s * 0.45f, cy + s * 0.35f, p);
+                p.setColor(0x88FFFFFF);
+                c.drawCircle(cx - s * 0.15f, cy - s * 0.4f, s * 0.12f, p);
+                p.setColor(0xFF0284C7);
+                c.drawRect(cx - s * 0.06f, cy + s * 0.35f, cx + s * 0.06f, cy + s * 0.45f, p);
+                p.setColor(0xAA7DD3FC);
+                for (int k = 0; k < 5; k++) c.drawCircle(cx - s * 0.8f + k * s * 0.4f, cy + s * 0.8f, s * 0.1f, p);
+                break;
+            }
             default: {   // letter tiles in quiz colours
                 String w = "KATA";
                 int[] col = {0xFF22C55E, 0xFFEAB308, 0xFF64748B, 0xFF22C55E};

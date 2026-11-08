@@ -23,15 +23,49 @@ import java.util.Random;
  * from the Party page. Empty seats are played by the TV in the racing, maze and silat games.
  */
 final class Arked4 {
-    static final int LUMBA = 0, LABIRIN = 1, ANGKASA = 2, SILAT = 3;
-    static final String[] NAMES = {"Lumba Pantas", "Tikus Labirin", "Pertahanan Angkasa", "Gelanggang Silat"};
+    static final int LUMBA = 0, LABIRIN = 1, ANGKASA = 2, SILAT = 3, WIRA = 4, PENDEKAR = 5, WAU = 6, LEBUHRAYA = 7,
+            BUAH = 8, PULAU = 9, BELON = 10, LUNCUR = 11, TERBANG = 12, KUBU = 13;
+    static final int COUNT = 14;
+
+    /** One of the newer games, in its own file; it reads input and draws through this engine. */
+    interface Mod {
+        void build();
+        void update(float dt);
+        void draw(Canvas c, float t);
+    }
+
+    /** How many seats the TV fills, per game (0: only people play). */
+    private static final int[] FILL = {4, 4, 0, -1, 0, 0, 0, 4, -1, 0, 4, 0, 0, 0};
+
+    private Mod mod(int g) {
+        switch (g) {
+            case WIRA: return new ModWira(this);
+            case PENDEKAR: return new ModPendekar(this);
+            case BUAH: return new ModBuah(this);
+            case BELON: return new ModBelon(this);
+            default: return null;
+        }
+    }
+
+    private Mod mod;
+    static final String[] NAMES = {"Lumba Pantas", "Tikus Labirin", "Pertahanan Angkasa", "Gelanggang Silat",
+            "Wira Hutan", "Pendekar Kampung", "Hujan Buah", "Perang Belon Air"};
+    static final int[] IDS = {LUMBA, LABIRIN, ANGKASA, SILAT, WIRA, PENDEKAR, BUAH, BELON};   // the menu's order
     static final String[] HINTS = {"Lumba kereta 3 pusingan", "Kutip beras, lari dari kucing", "Bersama tembak ubur-ubur angkasa",
-            "Tolak lawan keluar gelanggang"};
+            "Tolak lawan keluar gelanggang", "Bersama selamatkan hutan, 5 kawasan", "Halau lanun dari kampung, 4 peringkat",
+            "Padankan 4 buah, lawan 4 papan", "Baling belon air, 3 peta"};
     static final String[] HELP = {
             "◀▶ / kayu bedik: belok. Kereta laju sendiri. Lalu ⚡ untuk turbo!",
             "Arah / kayu bedik: gerak. Kutip beras. ★ = kucing takut, tangkap mereka!",
             "◀▶ / kayu bedik: gerak. Tembak automatik. Jangan kena buih!",
-            "◀▶ gerak · ▲ / B lompat (2 kali) · OK / A serang. Jatuh = hilang nyawa."
+            "◀▶ gerak · ▲ / B lompat (2 kali) · OK / A serang. Jatuh = hilang nyawa.",
+            "◀▶ gerak · ▲ / B lompat · tembak automatik. Kutip senjata baru!",
+            "Arah gerak · OK / A tumbuk · ▲ / B lompat. Ketupat = tambah tenaga.",
+            "",
+            "",
+            "◀▶ gerak · OK / A pusing · ▼ jatuh laju. 4 buah sama = hilang!",
+            "",
+            "Arah gerak · OK / A baling belon. Kena 3 kali = basah lencun!",
     };
 
     final Party party;
@@ -77,7 +111,7 @@ final class Arked4 {
         }
     }
 
-    private float ix(P p) {
+    float ix(P p) {
         if (p.seat == 0) {
             float v = (kR ? 1 : 0) - (kL ? 1 : 0);
             if (v != 0 || !party.players[0].phone) return v;
@@ -85,7 +119,7 @@ final class Arked4 {
         return party.players[p.seat].x;
     }
 
-    private float iy(P p) {
+    float iy(P p) {
         if (p.seat == 0) {
             float v = (kD ? 1 : 0) - (kU ? 1 : 0);
             if (v != 0 || !party.players[0].phone) return v;
@@ -94,7 +128,7 @@ final class Arked4 {
     }
 
     /** "A" presses since last asked (remote OK, phone A). */
-    private boolean pressA(P p) {
+    boolean pressA(P p) {
         Party.Player pp = party.players[p.seat];
         int n = (p.seat == 0 ? okCount : 0) + (pp.phone ? pp.aPresses : 0);
         boolean hit = n != p.lastA;
@@ -103,7 +137,7 @@ final class Arked4 {
     }
 
     /** "Jump" presses: remote ▲, phone B, or a phone stick pushed up. */
-    private boolean pressJump(P p) {
+    boolean pressJump(P p) {
         Party.Player pp = party.players[p.seat];
         int n = (p.seat == 0 ? upCount : 0) + (pp.phone ? pp.bPresses : 0);
         boolean hit = n != p.lastB;
@@ -135,21 +169,23 @@ final class Arked4 {
             p.lastB = (p.seat == 0 ? upCount : 0) + party.players[p.seat].bPresses;
         }
         // the TV fills empty seats where a crowd is more fun
-        int want = g == LUMBA || g == LABIRIN ? 4 : g == SILAT ? Math.max(2, Math.min(4, humans + 1)) : 0;
+        int want = FILL[g] >= 0 ? FILL[g] : Math.max(2, Math.min(4, humans + 1));
         for (P p : ps) if (!p.on && humans < want) { p.on = true; p.bot = true; humans++; }
         sized = false;
         size(W, H);
     }
 
-    private boolean sized;
-    private float W, H;
+    boolean sized;
+    float W, H;
 
     private void size(float w, float h) {
         if (sized && w == W && h == H) return;
         sized = true;
         W = w;
         H = h;
-        if (game == LUMBA) buildTrack();
+        mod = game >= WIRA ? mod(game) : null;
+        if (mod != null) mod.build();
+        else if (game == LUMBA) buildTrack();
         else if (game == LABIRIN) buildMaze();
         else if (game == ANGKASA) startSpace();
         else startSilat();
@@ -167,7 +203,8 @@ final class Arked4 {
         for (P p : ps) {
             if (p.on && !p.bot && p.seat > 0 && !party.players[p.seat].joined) p.on = false;   // a phone that left
         }
-        if (game == LUMBA) lumba(dt);
+        if (mod != null) mod.update(dt);
+        else if (game == LUMBA) lumba(dt);
         else if (game == LABIRIN) labirin(dt);
         else if (game == ANGKASA) angkasa(dt);
         else silat(dt);
@@ -176,7 +213,8 @@ final class Arked4 {
     void draw(Canvas c, float w, float h, float t) {
         size(w, h);
         tNow = t;
-        if (game == LUMBA) drawLumba(c, t);
+        if (mod != null) mod.draw(c, t);
+        else if (game == LUMBA) drawLumba(c, t);
         else if (game == LABIRIN) drawLabirin(c, t);
         else if (game == ANGKASA) drawAngkasa(c, t);
         else drawSilat(c, t);
@@ -192,29 +230,29 @@ final class Arked4 {
         }
     }
 
-    private void finish(String text) {
+    void finish(String text) {
         over = true;
         result = text;
         sound.sfx(GameMusic.SFX_WIN);
     }
 
-    private String who(P p) { return (p.bot ? "TV " : "Pemain ") + (p.seat + 1); }
+    String who(P p) { return (p.bot ? "TV " : "Pemain ") + (p.seat + 1); }
 
     // ---------------------------------------------------------------- drawing helpers
 
-    private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG), tx = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Path path = new Path();
-    private final RectF r = new RectF();
-    private Bitmap bg;
+    final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG), tx = new Paint(Paint.ANTI_ALIAS_FLAG);
+    final Path path = new Path();
+    final RectF r = new RectF();
+    Bitmap bg;
 
-    private float tNow;
+    float tNow;
 
     /** The player's pin above (x, y). */
-    private void label(Canvas c, P pl, float x, float y) {
+    void label(Canvas c, P pl, float x, float y) {
         Badge.pin(c, pl.seat, pl.bot, x, y, H * 0.03f, tNow);
     }
 
-    private void hudBox(Canvas c, int i, String s) {
+    void hudBox(Canvas c, int i, String s) {
         float bw = W * 0.2f, x = W * 0.02f + i * (bw + W * 0.045f), y = H * 0.012f;
         r.set(x, y, x + bw, y + H * 0.05f);
         p.setColor(0x99000000);
@@ -971,7 +1009,7 @@ final class Arked4 {
         }
     }
 
-    private static String hearts(int n) {
+    static String hearts(int n) {
         StringBuilder b = new StringBuilder();
         for (int i = 0; i < n; i++) b.append('♥');
         return b.length() == 0 ? "✖" : b.toString();

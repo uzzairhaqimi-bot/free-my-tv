@@ -61,13 +61,24 @@ public class BoardActivity extends Activity {
     static final class Board extends View {
         static final int MENU = 0, SETUP = 1, PLAY = 2, END = 3;
         static final int HARTA = 0, ULAR = 1, CONGKAK = 2, JUARA = 3, TEKA = 4, KANCIL = 5, ARKED = 6;
-        static final String[] NAMES = {"Hartanah Malaysia", "Ular & Tangga Bijak", "Congkak", "Siapa Juara?", "Teka Kata", "Sang Kancil",
-                Arked4.NAMES[0], Arked4.NAMES[1], Arked4.NAMES[2], Arked4.NAMES[3]};
+        static final String[] NAMES = concat(new String[]{"Hartanah Malaysia", "Ular & Tangga Bijak", "Congkak", "Siapa Juara?", "Teka Kata",
+                "Sang Kancil"}, Arked4.NAMES);
         static final String[] HINTS = {"Beli bandar, kutip sewa, jadi terkaya", "Jawab soalan untuk naik tangga",
                 "Permainan tradisional, kumpul biji terbanyak", "Kuiz TV, telefon jadi butang jawapan", "Teka perkataan 5 huruf, 6 cubaan",
-                "Pengembaraan 5 dunia, 1-4 pemain skrin pisah", Arked4.HINTS[0], Arked4.HINTS[1], Arked4.HINTS[2], Arked4.HINTS[3]};
+                "Pengembaraan 5 dunia, 1-4 pemain skrin pisah"};
         static final int[] COLS = {0xFF22C55E, 0xFFF97316, 0xFFB45309, 0xFF8B5CF6, 0xFF0EA5E9, 0xFF65A30D,
-                0xFFEF4444, 0xFFA16207, 0xFF6366F1, 0xFFEA580C};
+                0xFFEF4444, 0xFFA16207, 0xFF6366F1, 0xFFEA580C, 0xFF15803D, 0xFFB91C1C, 0xFFDB2777, 0xFF0284C7};
+
+        static String[] concat(String[] x, String[] y) {
+            String[] out = java.util.Arrays.copyOf(x, x.length + y.length);
+            System.arraycopy(y, 0, out, x.length, y.length);
+            return out;
+        }
+
+        static String hint(int i) { return i < HINTS.length ? HINTS[i] : Arked4.HINTS[i - HINTS.length]; }
+
+        /** The arcade engine's id for menu entry `g` (g >= ARKED). */
+        static int arkedId(int g) { return Arked4.IDS[g - ARKED]; }
         static final int[] PCOL = {0xFF22D3EE, 0xFFFF4FD8, 0xFFFACC15, 0xFF4ADE80};
 
         final Party party = new Party();
@@ -179,21 +190,21 @@ public class BoardActivity extends Activity {
             text(c, "Papan Permainan", W / 2, H * 0.11f, H * 0.065f, 0xFFFFFFFF, Paint.Align.CENTER);
             text(c, "Untuk satu keluarga: remote + telefon, sampai 4 pemain", W / 2, H * 0.17f, H * 0.03f, 0xBBFFFFFF, Paint.Align.CENTER);
             int n = NAMES.length, perRow = 5;
-            float cw = W * 0.17f, gap = W * 0.015f, x0 = (W - perRow * cw - (perRow - 1) * gap) / 2, ch = H * 0.31f;
+            float cw = W * 0.17f, gap = W * 0.015f, x0 = (W - perRow * cw - (perRow - 1) * gap) / 2, ch = H * 0.23f;
             for (int i = 0; i < n; i++) {
-                float top = H * (0.25f + (i / perRow) * 0.335f), left = x0 + (i % perRow) * (cw + gap);
+                float top = H * (0.21f + (i / perRow) * 0.245f), left = x0 + (i % perRow) * (cw + gap);
                 r.set(left, top, left + cw, top + ch);
                 boolean on = i == sel;
                 if (on) { r.offset(0, -H * 0.02f); float gr = W * (0.005f + 0.003f * (float) Math.sin(t * 3)); r.inset(-gr, -gr); }
                 card(c, r, COLS[i], on);
-                drawIcon(c, i, r.centerX(), r.top + H * 0.1f + (on ? (float) Math.sin(t * 4) * H * 0.01f : 0), H * 0.055f);
-                fit(c, NAMES[i], r.centerX(), r.top + H * 0.2f, cw * 0.9f, H * 0.032f, 0xFFFFFFFF);
-                wrapped(c, HINTS[i], r.left + cw * 0.08f, r.top + H * 0.23f, cw * 0.84f, H * 0.021f, 0xDDFFFFFF, Layout.Alignment.ALIGN_CENTER);
+                drawIcon(c, i, r.centerX(), r.top + H * 0.075f + (on ? (float) Math.sin(t * 4) * H * 0.008f : 0), H * 0.045f);
+                fit(c, NAMES[i], r.centerX(), r.top + H * 0.155f, cw * 0.9f, H * 0.03f, 0xFFFFFFFF);
+                fit(c, hint(i), r.centerX(), r.top + H * 0.198f, cw * 0.92f, H * 0.019f, 0xDDFFFFFF);
             }
             text(c, "◀▶▲▼ pilih   ·   OK main   ·   Back keluar", W / 2, H * 0.965f, H * 0.026f, 0x99FFFFFF, Paint.Align.CENTER);
         }
 
-        final android.graphics.Bitmap[] icons = new android.graphics.Bitmap[10];
+        final android.graphics.Bitmap[] icons = new android.graphics.Bitmap[NAMES.length];
 
         /** The game's picture, drawn once at this screen's size; s is half its height. */
         void drawIcon(Canvas c, int i, float cx, float cy, float s) {
@@ -237,7 +248,7 @@ public class BoardActivity extends Activity {
             else if (game == CONGKAK) congkak.start();
             else if (game == JUARA) juara.start();
             else if (game == KANCIL) kancil.start();
-            else if (game >= ARKED) arked.start(game - ARKED, W, H);
+            else if (game >= ARKED) arked.start(arkedId(game), W, H);
             else teka.start(true, true);
         }
 
@@ -852,7 +863,7 @@ public class BoardActivity extends Activity {
                 text(c, "Pemain " + (i + 1) + " · " + who, W * 0.62f, y, H * 0.032f,
                         pl.joined ? 0xFFFFFFFF : 0x66FFFFFF, Paint.Align.LEFT);
             }
-            text(c, game >= ARKED ? Arked4.HELP[game - ARKED] + "  ·  Tempat kosong dimain oleh TV"
+            text(c, game >= ARKED ? Arked4.HELP[arkedId(game)] + "  ·  Tempat kosong dimain oleh TV"
                     : game == KANCIL ? "Remote: ◀▶ lari, OK lompat  ·  Telefon: kayu bedik lari, butang A lompat  ·  2 pemain = skrin atas/bawah"
                     : "Remote: ◀▶▲▼ pilih, OK jawab  ·  Telefon: kayu bedik pilih, A jawab", W / 2, H * 0.82f, H * 0.028f, 0xFF67E8F9, Paint.Align.CENTER);
             text(c, "◀▶  Pemain 1 guna telefon juga: " + (party.phoneFirst ? "YA" : "TIDAK"), W * 0.62f, H * 0.76f, H * 0.03f,
@@ -1197,7 +1208,8 @@ public class BoardActivity extends Activity {
                     if (back) return false;
                     if (k == KeyEvent.KEYCODE_DPAD_LEFT) sel = (sel + NAMES.length - 1) % NAMES.length;
                     if (k == KeyEvent.KEYCODE_DPAD_RIGHT) sel = (sel + 1) % NAMES.length;
-                    if (k == KeyEvent.KEYCODE_DPAD_UP || k == KeyEvent.KEYCODE_DPAD_DOWN) sel = (sel + 5) % NAMES.length;
+                    if (k == KeyEvent.KEYCODE_DPAD_DOWN) sel = sel + 5 < NAMES.length ? sel + 5 : sel % 5;
+                    if (k == KeyEvent.KEYCODE_DPAD_UP) sel = sel - 5 >= 0 ? sel - 5 : Math.min(NAMES.length - 1, sel + ((NAMES.length - 1) / 5) * 5);
                     if (ok) {
                         game = sel;
                         setupRow = 0;
