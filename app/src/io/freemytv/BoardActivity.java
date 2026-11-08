@@ -67,7 +67,8 @@ public class BoardActivity extends Activity {
                 "Permainan tradisional, kumpul biji terbanyak", "Kuiz TV, telefon jadi butang jawapan", "Teka perkataan 5 huruf, 6 cubaan",
                 "Pengembaraan 5 dunia, 1-4 pemain skrin pisah"};
         static final int[] COLS = {0xFF22C55E, 0xFFF97316, 0xFFB45309, 0xFF8B5CF6, 0xFF0EA5E9, 0xFF65A30D,
-                0xFFEF4444, 0xFFA16207, 0xFF6366F1, 0xFFEA580C, 0xFF15803D, 0xFFB91C1C, 0xFFDB2777, 0xFF0284C7};
+                0xFFEF4444, 0xFFA16207, 0xFF6366F1, 0xFFEA580C, 0xFF15803D, 0xFFB91C1C, 0xFFDB2777, 0xFF0284C7,
+                0xFF0EA5E9, 0xFF475569, 0xFF0D9488, 0xFFF59E0B, 0xFF7C3AED, 0xFFCA8A04};
 
         static String[] concat(String[] x, String[] y) {
             String[] out = java.util.Arrays.copyOf(x, x.length + y.length);
@@ -189,10 +190,17 @@ public class BoardActivity extends Activity {
         void drawMenu(Canvas c) {
             text(c, "Papan Permainan", W / 2, H * 0.11f, H * 0.065f, 0xFFFFFFFF, Paint.Align.CENTER);
             text(c, "Untuk satu keluarga: remote + telefon, sampai 4 pemain", W / 2, H * 0.17f, H * 0.03f, 0xBBFFFFFF, Paint.Align.CENTER);
-            int n = NAMES.length, perRow = 5;
+            int n = NAMES.length, perRow = 5, rows = (n + perRow - 1) / perRow;
             float cw = W * 0.17f, gap = W * 0.015f, x0 = (W - perRow * cw - (perRow - 1) * gap) / 2, ch = H * 0.23f;
+            // three rows show at a time; the list slides to keep the chosen one in view
+            float want = Math.max(0, Math.min(rows - 3, sel / perRow - 1));
+            menuScroll += (want - menuScroll) * 0.2f;
+            c.save();
+            c.clipRect(0, H * 0.2f, W, H * 0.945f);
             for (int i = 0; i < n; i++) {
-                float top = H * (0.21f + (i / perRow) * 0.245f), left = x0 + (i % perRow) * (cw + gap);
+                float rowPos = i / perRow - menuScroll;
+                if (rowPos < -1 || rowPos > 3) continue;
+                float top = H * (0.21f + rowPos * 0.245f), left = x0 + (i % perRow) * (cw + gap);
                 r.set(left, top, left + cw, top + ch);
                 boolean on = i == sel;
                 if (on) { r.offset(0, -H * 0.02f); float gr = W * (0.005f + 0.003f * (float) Math.sin(t * 3)); r.inset(-gr, -gr); }
@@ -201,9 +209,13 @@ public class BoardActivity extends Activity {
                 fit(c, NAMES[i], r.centerX(), r.top + H * 0.155f, cw * 0.9f, H * 0.03f, 0xFFFFFFFF);
                 fit(c, hint(i), r.centerX(), r.top + H * 0.198f, cw * 0.92f, H * 0.019f, 0xDDFFFFFF);
             }
-            text(c, "◀▶▲▼ pilih   ·   OK main   ·   Back keluar", W / 2, H * 0.965f, H * 0.026f, 0x99FFFFFF, Paint.Align.CENTER);
+            c.restore();
+            if (menuScroll > 0.05f) text(c, "▲", W / 2, H * 0.205f, H * 0.03f, 0x99FFFFFF, Paint.Align.CENTER);
+            if (menuScroll < rows - 3 - 0.05f) text(c, "▼ lagi permainan", W / 2, H * 0.94f, H * 0.024f, 0xCCFDE68A, Paint.Align.CENTER);
+            text(c, "◀▶▲▼ pilih   ·   OK main   ·   Back keluar   ·   " + NAMES.length + " permainan", W / 2, H * 0.975f, H * 0.024f, 0x99FFFFFF, Paint.Align.CENTER);
         }
 
+        float menuScroll;
         final android.graphics.Bitmap[] icons = new android.graphics.Bitmap[NAMES.length];
 
         /** The game's picture, drawn once at this screen's size; s is half its height. */

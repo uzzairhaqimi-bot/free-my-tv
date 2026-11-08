@@ -43,29 +43,41 @@ final class Arked4 {
             case PENDEKAR: return new ModPendekar(this);
             case BUAH: return new ModBuah(this);
             case BELON: return new ModBelon(this);
+            case WAU: return new ModWau(this);
+            case LEBUHRAYA: return new ModLebuhraya(this);
+            case PULAU: return new ModPulau(this);
+            case LUNCUR: return new ModLuncur(this);
+            case TERBANG: return new ModTerbang(this);
+            case KUBU: return new ModKubu(this);
             default: return null;
         }
     }
 
     private Mod mod;
     static final String[] NAMES = {"Lumba Pantas", "Tikus Labirin", "Pertahanan Angkasa", "Gelanggang Silat",
-            "Wira Hutan", "Pendekar Kampung", "Hujan Buah", "Perang Belon Air"};
-    static final int[] IDS = {LUMBA, LABIRIN, ANGKASA, SILAT, WIRA, PENDEKAR, BUAH, BELON};   // the menu's order
+            "Wira Hutan", "Pendekar Kampung", "Hujan Buah", "Perang Belon Air", "Juruterbang Wau", "Lumba Lebuhraya",
+            "Pulau Misteri", "Papan Luncur", "Terbang Wau", "Kubu Pasir"};
+    static final int[] IDS = {LUMBA, LABIRIN, ANGKASA, SILAT, WIRA, PENDEKAR, BUAH, BELON, WAU, LEBUHRAYA, PULAU, LUNCUR, TERBANG, KUBU};
     static final String[] HINTS = {"Lumba kereta 3 pusingan", "Kutip beras, lari dari kucing", "Bersama tembak ubur-ubur angkasa",
             "Tolak lawan keluar gelanggang", "Bersama selamatkan hutan, 5 kawasan", "Halau lanun dari kampung, 4 peringkat",
-            "Padankan 4 buah, lawan 4 papan", "Baling belon air, 3 peta"};
-    static final String[] HELP = {
+            "Padankan 4 buah, lawan 4 papan", "Baling belon air, 3 peta", "Tembak awan ribut, 8 gelombang",
+            "Motosikal skrin pisah, 4 laluan", "Cari kunci 4 pulau bersama", "Aksi papan luncur, 3 taman",
+            "Lalu gelang di udara, 6 laluan", "Pertahankan istana dari ketam"};
+    static final String[] HELP = {   // by game id
             "◀▶ / kayu bedik: belok. Kereta laju sendiri. Lalu ⚡ untuk turbo!",
             "Arah / kayu bedik: gerak. Kutip beras. ★ = kucing takut, tangkap mereka!",
             "◀▶ / kayu bedik: gerak. Tembak automatik. Jangan kena buih!",
             "◀▶ gerak · ▲ / B lompat (2 kali) · OK / A serang. Jatuh = hilang nyawa.",
             "◀▶ gerak · ▲ / B lompat · tembak automatik. Kutip senjata baru!",
             "Arah gerak · OK / A tumbuk · ▲ / B lompat. Ketupat = tambah tenaga.",
-            "",
-            "",
+            "Arah / kayu bedik: terbang. Tembak automatik. ◆ = tembakan 3 arah.",
+            "◀▶ / kayu bedik: belok. Motosikal laju sendiri. Selekoh menolak ke luar!",
             "◀▶ gerak · OK / A pusing · ▼ jatuh laju. 4 buah sama = hilang!",
-            "",
+            "Arah gerak · OK / A pukul (musuh, peti). Pijak semua batu leper serentak!",
             "Arah gerak · OK / A baling belon. Kena 3 kali = basah lencun!",
+            "▲ / B lompat · OK / A putar di udara. Mendarat dengan putaran lengkap!",
+            "▲▼ / kayu bedik: naik turun. Lalu tengah gelang = markah lebih.",
+            "Arah: gerak kotak · OK / A: bina / naik taraf menara.",
     };
 
     final Party party;

@@ -472,6 +472,69 @@ final class FancyArt {
                 for (int k = 0; k < 5; k++) c.drawCircle(cx - s * 0.8f + k * s * 0.4f, cy + s * 0.8f, s * 0.1f, p);
                 break;
             }
+            case 14: case 18: {   // a wau bulan (with a ring for Terbang Wau)
+                if (game == 18) {
+                    p.setStyle(Paint.Style.STROKE);
+                    p.setStrokeWidth(s * 0.1f);
+                    p.setColor(0xFFFACC15);
+                    c.drawOval(cx + s * 0.2f, cy - s * 0.7f, cx + s * 0.8f, cy + s * 0.7f, p);
+                    p.setStyle(Paint.Style.FILL);
+                }
+                p.setColor(game == 14 ? 0xFF38BDF8 : 0xFFF472B6);
+                c.drawArc(cx - s * 0.8f, cy - s * 0.8f, cx + s * 0.6f, cy + s * 0.1f, 200, 140, true, p);
+                c.drawCircle(cx - s * 0.1f, cy + s * 0.1f, s * 0.25f, p);
+                c.drawArc(cx - s * 0.6f, cy + s * 0.2f, cx + s * 0.4f, cy + s * 0.8f, 200, 140, true, p);
+                if (game == 14) { p.setColor(0xFFFDE047); c.drawCircle(cx + s * 0.75f, cy - s * 0.1f, s * 0.1f, p); c.drawCircle(cx + s * 0.95f, cy - s * 0.1f, s * 0.07f, p); }
+                break;
+            }
+            case 15: {   // a motorbike from behind on a road
+                p.setColor(0xFF4B5563);
+                Path rd = new Path();
+                rd.moveTo(cx - s * 0.15f, cy - s * 0.6f); rd.lineTo(cx + s * 0.15f, cy - s * 0.6f); rd.lineTo(cx + s, cy + s); rd.lineTo(cx - s, cy + s); rd.close();
+                c.drawPath(rd, p);
+                p.setColor(0xFF111827);
+                c.drawRoundRect(cx - s * 0.1f, cy + s * 0.2f, cx + s * 0.1f, cy + s * 0.8f, s * 0.05f, s * 0.05f, p);
+                p.setColor(0xFFEF4444);
+                c.drawRoundRect(cx - s * 0.3f, cy - s * 0.1f, cx + s * 0.3f, cy + s * 0.35f, s * 0.08f, s * 0.08f, p);
+                c.drawCircle(cx, cy - s * 0.35f, s * 0.2f, p);
+                break;
+            }
+            case 16: {   // an island with a palm and a key
+                p.setColor(0xFF0EA5E9);
+                c.drawOval(cx - s, cy + s * 0.3f, cx + s, cy + s * 0.9f, p);
+                p.setColor(0xFFFDE68A);
+                c.drawOval(cx - s * 0.7f, cy + s * 0.25f, cx + s * 0.7f, cy + s * 0.65f, p);
+                p.setColor(0xFF92400E);
+                c.drawRect(cx - s * 0.05f, cy - s * 0.5f, cx + s * 0.05f, cy + s * 0.4f, p);
+                p.setColor(0xFF16A34A);
+                c.drawCircle(cx, cy - s * 0.55f, s * 0.35f, p);
+                p.setColor(0xFFFACC15);
+                c.drawCircle(cx + s * 0.6f, cy - s * 0.3f, s * 0.13f, p);
+                c.drawRect(cx + s * 0.6f, cy - s * 0.33f, cx + s * 0.95f, cy - s * 0.27f, p);
+                break;
+            }
+            case 17: {   // a skateboard in mid-air
+                c.save();
+                c.rotate(-20, cx, cy);
+                p.setColor(0xFF7C3AED);
+                c.drawRoundRect(cx - s * 0.9f, cy - s * 0.12f, cx + s * 0.9f, cy + s * 0.12f, s * 0.12f, s * 0.12f, p);
+                p.setColor(0xFF111827);
+                c.drawCircle(cx - s * 0.55f, cy + s * 0.25f, s * 0.15f, p);
+                c.drawCircle(cx + s * 0.55f, cy + s * 0.25f, s * 0.15f, p);
+                c.restore();
+                p.setColor(0xAAFFFFFF);
+                for (int k = 0; k < 3; k++) c.drawRect(cx - s * 1.0f, cy + s * (0.4f + k * 0.18f), cx - s * 0.4f, cy + s * (0.45f + k * 0.18f), p);
+                break;
+            }
+            case 19: {   // a sandcastle and a crab
+                p.setColor(0xFFCA8A04);
+                c.drawRect(cx - s * 0.6f, cy - s * 0.2f, cx + s * 0.4f, cy + s * 0.6f, p);
+                for (int k = 0; k < 3; k++) c.drawRect(cx - s * 0.6f + k * s * 0.4f, cy - s * 0.5f, cx - s * 0.4f + k * s * 0.4f, cy - s * 0.2f, p);
+                p.setColor(0xFFDC2626);
+                c.drawRect(cx - s * 0.12f, cy - s * 0.9f, cx + s * 0.15f, cy - s * 0.72f, p);
+                c.drawOval(cx + s * 0.45f, cy + s * 0.35f, cx + s * 0.95f, cy + s * 0.65f, p);
+                break;
+            }
             default: {   // letter tiles in quiz colours
                 String w = "KATA";
                 int[] col = {0xFF22C55E, 0xFFEAB308, 0xFF64748B, 0xFF22C55E};
