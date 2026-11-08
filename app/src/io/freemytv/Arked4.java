@@ -175,6 +175,7 @@ final class Arked4 {
 
     void draw(Canvas c, float w, float h, float t) {
         size(w, h);
+        tNow = t;
         if (game == LUMBA) drawLumba(c, t);
         else if (game == LABIRIN) drawLabirin(c, t);
         else if (game == ANGKASA) drawAngkasa(c, t);
@@ -206,11 +207,11 @@ final class Arked4 {
     private final RectF r = new RectF();
     private Bitmap bg;
 
+    private float tNow;
+
+    /** The player's pin above (x, y). */
     private void label(Canvas c, P pl, float x, float y) {
-        tx.setTextAlign(Paint.Align.CENTER);
-        tx.setTextSize(H * 0.022f);
-        tx.setColor(Party.COLORS[pl.seat]);
-        c.drawText(pl.bot ? "TV" + (pl.seat + 1) : "P" + (pl.seat + 1), x, y, tx);
+        Badge.pin(c, pl.seat, pl.bot, x, y, H * 0.03f, tNow);
     }
 
     private void hudBox(Canvas c, int i, String s) {
@@ -218,8 +219,7 @@ final class Arked4 {
         r.set(x, y, x + bw, y + H * 0.05f);
         p.setColor(0x99000000);
         c.drawRoundRect(r, H * 0.02f, H * 0.02f, p);
-        p.setColor(Party.COLORS[i]);
-        c.drawCircle(x + H * 0.025f, y + H * 0.025f, H * 0.013f, p);
+        Badge.dot(c, i, ps[i].bot, x + H * 0.025f, y + H * 0.025f, H * 0.017f);
         tx.setTextAlign(Paint.Align.LEFT);
         tx.setTextSize(H * 0.026f);
         tx.setColor(0xFFFFFFFF);
@@ -433,8 +433,9 @@ final class Arked4 {
         }
         for (P pl : ps) {
             if (!pl.on) continue;
+            Badge.ring(c, pl.seat, pl.x, pl.y, H * 0.038f, t);
             car(c, pl.x, pl.y, pl.ang, Party.COLORS[pl.seat], pl.turbo > 0, t);
-            label(c, pl, pl.x, pl.y - H * 0.04f);
+            label(c, pl, pl.x, pl.y - H * 0.03f);
         }
         for (P pl : ps) {
             if (!pl.on) continue;
@@ -705,7 +706,9 @@ final class Arked4 {
         for (P pl : ps) {
             if (!pl.on || (pl.inv > 0 && ((int) (pl.inv * 10)) % 2 == 0)) continue;
             float px = ox + (pl.x + 0.5f) * cell, py = oy + (pl.y + 0.5f) * cell;
+            Badge.ring(c, pl.seat, px, py, cell * 0.55f, t);
             mouse(c, px, py, cell * 0.42f, Party.COLORS[pl.seat], pl.dir, pl.power > 0, t);
+            label(c, pl, px, py - cell * 0.45f);
         }
         long left = Math.max(0, 150 - (long) time);
         for (P pl : ps) if (pl.on) hudBox(c, pl.seat, (pl.bot ? "TV  " : "") + pl.score + " mata");
@@ -723,8 +726,9 @@ final class Arked4 {
         p.setStrokeWidth(s * 0.12f);
         p.setColor(0xFFF9A8D4);
         c.drawLine(-s * 0.8f, 0, -s * 1.3f, (float) Math.sin(t * 12) * s * 0.3f, p);   // tail
-        p.setColor(0xFF9CA3AF);
+        p.setColor(col);   // the mouse wears its player's colour
         c.drawOval(-s * 0.85f, -s * 0.55f, s * 0.6f, s * 0.55f, p);
+        p.setColor(0xFFE5E7EB);
         c.drawCircle(s * 0.55f, 0, s * 0.4f, p);
         p.setColor(0xFFF9A8D4);
         c.drawCircle(s * 0.35f, -s * 0.45f, s * 0.22f, p);
@@ -734,8 +738,6 @@ final class Arked4 {
         c.drawCircle(s * 0.65f, s * 0.15f, s * 0.08f, p);
         p.setColor(0xFFEC4899);
         c.drawCircle(s * 0.95f, 0, s * 0.1f, p);
-        p.setColor(col);   // a scarf in the player's colour
-        c.drawRect(s * 0.05f, -s * 0.5f, s * 0.22f, s * 0.5f, p);
         c.restore();
     }
 
@@ -954,7 +956,7 @@ final class Arked4 {
             if (!pl.on || pl.lives <= 0) continue;
             if (pl.inv > 0 && ((int) (pl.inv * 10)) % 2 == 0) continue;
             ship(c, pl.x, pl.y, Party.COLORS[pl.seat], t);
-            label(c, pl, pl.x, pl.y + H * 0.06f);
+            label(c, pl, pl.x, pl.y - H * 0.045f);
         }
         for (P pl : ps) if (pl.on) hudBox(c, pl.seat, pl.score + "   " + hearts(pl.lives));
         tx.setTextAlign(Paint.Align.RIGHT);
@@ -1162,12 +1164,13 @@ final class Arked4 {
         for (P pl : ps) {
             if (!pl.on || pl.lives <= 0) continue;
             if (pl.inv > 0 && ((int) (pl.inv * 10)) % 2 == 0) continue;
+            Badge.ring(c, pl.seat, pl.x, pl.y - H * 0.005f, H * 0.035f, t);
             fighter(c, pl, t);
             tx.setTextAlign(Paint.Align.CENTER);
             tx.setTextSize(H * 0.026f);
             tx.setColor(pl.dmg > 60 ? 0xFFF87171 : pl.dmg > 30 ? 0xFFFDE047 : 0xFFFFFFFF);
-            c.drawText((int) pl.dmg + "%", pl.x, pl.y - H * 0.17f, tx);
-            label(c, pl, pl.x, pl.y - H * 0.2f);
+            c.drawText((int) pl.dmg + "%", pl.x + H * 0.06f, pl.y - H * 0.13f, tx);
+            label(c, pl, pl.x, pl.y - H * 0.18f);
         }
         for (P pl : ps) if (pl.on) hudBox(c, pl.seat, (pl.bot ? "TV  " : "") + hearts(pl.lives) + "  " + (int) pl.dmg + "%");
         long left = Math.max(0, (long) (SILAT_TIME - time));

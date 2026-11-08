@@ -644,6 +644,7 @@ final class Kancil {
             if (pl.inv > 0 && ((int) (pl.inv * 12)) % 2 == 0) continue;   // blink while safe
             drawKancil(c, p, path, (pl.x + PW / 2) * T, (pl.y + PH) * T, T * 1.05f, pl.face,
                     pl.ground ? pl.run : 0.8f, Party.COLORS[pl.seat], t, pl.ground && Math.abs(pl.vx) > 0.5f);
+            Badge.pin(c, pl.seat, false, (pl.x + PW / 2) * T, (pl.y - 0.15f) * T, T * 0.32f, t);
         }
         c.restore();
         hud(c, me);
@@ -886,12 +887,7 @@ final class Kancil {
         r.set(x - T * 0.15f, y - T * 0.12f, x + T * 5.6f, y + s + T * 0.15f);
         p.setColor(0x88000000);
         c.drawRoundRect(r, T * 0.2f, T * 0.2f, p);
-        p.setColor(Party.COLORS[me.seat]);
-        c.drawCircle(x + s * 0.5f, y + s * 0.5f, s * 0.45f, p);
-        tx.setTextAlign(Paint.Align.CENTER);
-        tx.setTextSize(s * 0.6f);
-        tx.setColor(0xFF000000);
-        c.drawText(String.valueOf(me.seat + 1), x + s * 0.5f, y + s * 0.72f, tx);
+        Badge.dot(c, me.seat, false, x + s * 0.5f, y + s * 0.5f, s * 0.5f);
         for (int i = 0; i < Math.max(3, me.hearts); i++) heart(c, x + s * 1.3f + i * s * 0.75f, y + s * 0.5f, s * 0.3f, i < me.hearts);
         float fx = x + s * 1.3f + Math.max(3, me.hearts) * s * 0.75f + s * 0.2f;
         c.drawBitmap(fruitB, null, rect(fx, y - s * 0.1f, s * 1.2f), null);
