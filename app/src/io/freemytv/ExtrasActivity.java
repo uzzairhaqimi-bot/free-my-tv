@@ -146,6 +146,7 @@ public class ExtrasActivity extends Activity {
 
         header("Kata-kata Semangat");
         row("Tukar setiap minit", () -> x.quotes ? "Hidup" : "Mati", () -> x.quotes = !x.quotes);
+        row("Gaya", () -> x.quoteStyle == 0 ? "Besar & tebal di bawah jam" : "Kecil di atas", () -> x.quoteStyle = 1 - x.quoteStyle);
 
         header("Permainan");
         row("Retro Arked", () -> "Pong · Komet · Ular", () -> startActivity(new android.content.Intent(this, RetroActivity.class)));

@@ -31,6 +31,13 @@ final class Extras {
     String musicLink = "";
     int musicVol = 1;          // 0 low, 1 medium, 2 high
     boolean quotes = true;
+    /** Where the motivational line goes: 0 big and bold under the clock (in place of the prices), 1 small at the top. */
+    int quoteStyle;
+    /** The line shown big on the home screen now, and when it changed (HomeView fades it in); null: none. */
+    static volatile String motto;
+    static volatile long mottoAt;
+
+    static boolean mottoOn() { return motto != null; }
     /** Music in the fork's games: 0 mixed (the link in calm moments, composed upbeat songs in action), 1 composed only, 2 the link only, 3 off. */
     int gameMusic;
     String gameMusicLink = "https://www.youtube.com/watch?v=-Yu4pgqXfso";
@@ -64,6 +71,7 @@ final class Extras {
             e.musicLink = o.optString("musicLink", "");
             e.musicVol = clamp(o.optInt("musicVol", 1), 2);
             e.quotes = o.optBoolean("quotes", true);
+            e.quoteStyle = clamp(o.optInt("quoteStyle", 0), 1);
             e.gameMusic = clamp(o.optInt("gameMusic", 0), 3);
             e.gameMusicLink = o.optString("gameMusicLink", e.gameMusicLink);
         } catch (Exception ignored) {
@@ -87,6 +95,7 @@ final class Extras {
             o.put("musicLink", musicLink == null ? "" : musicLink);
             o.put("musicVol", musicVol);
             o.put("quotes", quotes);
+            o.put("quoteStyle", quoteStyle);
             o.put("gameMusic", gameMusic);
             o.put("gameMusicLink", gameMusicLink == null ? "" : gameMusicLink);
             File tmp = new File(c.getFilesDir(), "extras.json.tmp");

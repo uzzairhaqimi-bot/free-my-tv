@@ -680,6 +680,11 @@ final class HomeView extends ViewGroup implements Choreographer.FrameCallback, H
     // MARK: - Lifecycle (called by HomeActivity)
 
     /** Fork extras: the video background came or went: redraw the sky and pick the look again. */
+    /** Fork extra: a new motto line to fade in. */
+    void mottoChanged() {
+        if (heroLayer != null) heroLayer.invalidate();
+    }
+
     void extrasChanged() {
         checkNight(false);
         sky.invalidate();
@@ -1792,6 +1797,12 @@ final class HomeView extends ViewGroup implements Choreographer.FrameCallback, H
             text.setColor(textColor);
             return;
         }
+        // Fork extra: the motivational line, big and bold, in place of the prices.
+        if (Extras.mottoOn()) {
+            drawMotto(c, clock, fade);
+            text.setColor(textColor);
+            return;
+        }
         // One read of the list, so n always matches the coins drawn below.
         int[] coins = HomeData.active();
         int n = coins.length;
@@ -1820,6 +1831,40 @@ final class HomeView extends ViewGroup implements Choreographer.FrameCallback, H
         if (stale.isEmpty()) return;
         if (clock) c.drawText(stale, x - spacing + 24 * k + staleQuote.measureText(stale), base, staleQuote);
         else c.drawText(stale, right - total - 24 * k, base, staleQuote);
+    }
+
+    // Fork extra: the motto's paint and its laid-out lines, made again only when the line or the size changes.
+    private android.text.TextPaint mottoPaint;
+    private android.text.StaticLayout mottoLayout;
+    private String mottoFor;
+    private float mottoSize;
+
+    private void drawMotto(Canvas c, boolean clock, float fade) {
+        String line = Extras.motto;
+        if (line == null) return;
+        float size = (clock ? 50 : 30) * k, width = (clock ? 1100 : 760) * k;
+        if (mottoPaint == null) {
+            mottoPaint = new android.text.TextPaint(Paint.ANTI_ALIAS_FLAG);
+            mottoPaint.setTypeface(android.graphics.Typeface.create("sans-serif-black", android.graphics.Typeface.BOLD));
+        }
+        if (mottoLayout == null || !line.equals(mottoFor) || size != mottoSize) {
+            mottoFor = line;
+            mottoSize = size;
+            mottoPaint.setTextSize(size);
+            mottoPaint.setShader(new LinearGradient(0, 0, width * 0.7f, 0, 0xFFFFFFFF, 0xFFFDE68A, Shader.TileMode.CLAMP));
+            mottoPaint.setShadowLayer(12 * k, 0, 3 * k, 0xCC000000);
+            mottoLayout = new android.text.StaticLayout("✦ " + line, mottoPaint, (int) width, android.text.Layout.Alignment.ALIGN_NORMAL, 1.0f, 0, false);
+        }
+        long since = SystemClock.uptimeMillis() - Extras.mottoAt;
+        float in = Math.min(1, since / 700f);
+        if (in < 1 && heroLayer != null) heroLayer.postInvalidateOnAnimation();
+        mottoPaint.setAlpha((int) (255 * fade * in));
+        float x = clock ? MARGIN * k : CONTENT_R * k - width;
+        float top = clock ? (L_WEATHER_BASE + 26) * k + (1 - in) * 12 * k : (L_TABBAR_TOP + 6) * k;
+        c.save();
+        c.translate(x, top);
+        mottoLayout.draw(c);
+        c.restore();
     }
 
     private void drawTiles(Canvas c) {
@@ -4612,7 +4657,7 @@ final class HomeView extends ViewGroup implements Choreographer.FrameCallback, H
         if (clockMode()) {
             titleRight = 0;
             drawClock(c);
-            if (HomeData.coinCount() > 0 || playingTab != null) drawQuotes(c);
+            if (HomeData.coinCount() > 0 || playingTab != null || Extras.mottoOn()) drawQuotes(c);
             return;
         }
         String hello = picksMode() ? Ui.tr("For You") : Ui.tr("Continue Watching");
@@ -4620,7 +4665,7 @@ final class HomeView extends ViewGroup implements Choreographer.FrameCallback, H
         titleRight = MARGIN * k + lTitle.measureText(hello);
         if (!picksMode()) {
             if (continueMode()) drawWatchRow(c);
-            if (HomeData.coinCount() > 0 || playingTab != null) drawQuotes(c);
+            if (HomeData.coinCount() > 0 || playingTab != null || Extras.mottoOn()) drawQuotes(c);
             return;
         }
         // Text tabs (the selected one in bold, in the main text color); with focus on the tabs, the selected one gets
@@ -4653,7 +4698,7 @@ final class HomeView extends ViewGroup implements Choreographer.FrameCallback, H
         for (int i = 0; i < slots; i++) if (cardFocus[i].value > 0.02f && (top < 0 || cardFocus[i].value > cardFocus[top].value)) top = i;
         for (int i = 0; i < slots; i++) if (i != top) drawLightCard(c, i);
         if (top >= 0) drawLightCard(c, top);
-        if (HomeData.coinCount() > 0 || playingTab != null) drawQuotes(c);
+        if (HomeData.coinCount() > 0 || playingTab != null || Extras.mottoOn()) drawQuotes(c);
     }
 
     private boolean picksOn() {

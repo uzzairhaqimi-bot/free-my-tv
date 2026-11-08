@@ -97,11 +97,19 @@ public class HomeActivity extends Activity {
             try {
                 count++;
                 if (quote.getVisibility() == android.view.View.VISIBLE) showQuote();
+                if (Extras.motto != null) setMotto(Quotes.next());
                 if (videoEvery > 0 && Extras.videoActive && count % videoEvery == 0) videoBg.nextItem();
             } catch (Throwable ignored) { }
             extrasHandler.postDelayed(this, 60_000);
         }
     };
+
+    /** The big line under the clock (HomeView draws it in place of the prices). */
+    private void setMotto(String s) {
+        Extras.motto = s;
+        Extras.mottoAt = SystemClock.uptimeMillis();
+        home.mottoChanged();
+    }
 
     private void showQuote() {
         final String s = Quotes.next();
@@ -125,7 +133,10 @@ public class HomeActivity extends Activity {
             }
             videoEvery = x.videoEvery;
             if (x.music) music.play(x.musicLink, x.musicVolume()); else music.stop();
-            if (x.quotes) {
+            boolean big = x.quotes && x.quoteStyle == 0;
+            if (big && Extras.motto == null) setMotto(Quotes.next());
+            if (!big && Extras.motto != null) { Extras.motto = null; home.mottoChanged(); }
+            if (x.quotes && !big) {
                 if (quote.getVisibility() != android.view.View.VISIBLE) {
                     quote.setText("✦  " + Quotes.next());
                     quote.setAlpha(1f);
