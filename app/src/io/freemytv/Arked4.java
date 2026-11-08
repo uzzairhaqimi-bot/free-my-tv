@@ -24,8 +24,9 @@ import java.util.Random;
  */
 final class Arked4 {
     static final int LUMBA = 0, LABIRIN = 1, ANGKASA = 2, SILAT = 3, WIRA = 4, PENDEKAR = 5, WAU = 6, LEBUHRAYA = 7,
-            BUAH = 8, PULAU = 9, BELON = 10, LUNCUR = 11, TERBANG = 12, KUBU = 13;
-    static final int COUNT = 14;
+            BUAH = 8, PULAU = 9, BELON = 10, LUNCUR = 11, TERBANG = 12, KUBU = 13, MERCUN = 14, KELAPA = 15, BOLA = 16,
+            KART = 17, SUMO = 18, HOKI = 19;
+    static final int COUNT = 20;
 
     /** One of the newer games, in its own file; it reads input and draws through this engine. */
     interface Mod {
@@ -35,7 +36,7 @@ final class Arked4 {
     }
 
     /** How many seats the TV fills, per game (0: only people play). */
-    private static final int[] FILL = {4, 4, 0, -1, 0, 0, 0, 4, -1, 0, 4, 0, 0, 0};
+    private static final int[] FILL = {4, 4, 0, -1, 0, 0, 0, 4, -1, 0, 4, 0, 0, 0, 4, -1, 4, 4, 4, -1};
 
     private Mod mod(int g) {
         switch (g) {
@@ -49,6 +50,12 @@ final class Arked4 {
             case LUNCUR: return new ModLuncur(this);
             case TERBANG: return new ModTerbang(this);
             case KUBU: return new ModKubu(this);
+            case MERCUN: return new ModMercun(this);
+            case KELAPA: return new ModKelapa(this);
+            case BOLA: return new ModBola(this);
+            case KART: return new ModKart(this);
+            case SUMO: return new ModSumo(this);
+            case HOKI: return new ModHoki(this);
             default: return null;
         }
     }
@@ -56,13 +63,16 @@ final class Arked4 {
     private Mod mod;
     static final String[] NAMES = {"Lumba Pantas", "Tikus Labirin", "Pertahanan Angkasa", "Gelanggang Silat",
             "Wira Hutan", "Pendekar Kampung", "Hujan Buah", "Perang Belon Air", "Juruterbang Wau", "Lumba Lebuhraya",
-            "Pulau Misteri", "Papan Luncur", "Terbang Wau", "Kubu Pasir"};
-    static final int[] IDS = {LUMBA, LABIRIN, ANGKASA, SILAT, WIRA, PENDEKAR, BUAH, BELON, WAU, LEBUHRAYA, PULAU, LUNCUR, TERBANG, KUBU};
+            "Pulau Misteri", "Papan Luncur", "Terbang Wau", "Kubu Pasir", "Mercun Raya", "Panjat Kelapa", "Bola Sepak Kampung",
+            "Kart Belon", "Sumo Gelembung", "Hoki Udara 4"};
+    static final int[] IDS = {LUMBA, LABIRIN, ANGKASA, SILAT, WIRA, PENDEKAR, BUAH, BELON, WAU, LEBUHRAYA, PULAU, LUNCUR, TERBANG, KUBU,
+            MERCUN, KELAPA, BOLA, KART, SUMO, HOKI};
     static final String[] HINTS = {"Lumba kereta 3 pusingan", "Kutip beras, lari dari kucing", "Bersama tembak ubur-ubur angkasa",
             "Tolak lawan keluar gelanggang", "Bersama selamatkan hutan, 5 kawasan", "Halau lanun dari kampung, 4 peringkat",
             "Padankan 4 buah, lawan 4 papan", "Baling belon air, 3 peta", "Tembak awan ribut, 8 gelombang",
             "Motosikal skrin pisah, 4 laluan", "Cari kunci 4 pulau bersama", "Aksi papan luncur, 3 taman",
-            "Lalu gelang di udara, 6 laluan", "Pertahankan istana dari ketam"};
+            "Lalu gelang di udara, 6 laluan", "Pertahankan istana dari ketam", "Letup kotak, 3 pusingan", "Panjat ke atas, elak kelapa",
+            "2 lawan 2, gol pertama ke 5", "Pecahkan belon lawan", "Tolak lawan ke laut", "Jaga gol di 4 penjuru"};
     static final String[] HELP = {   // by game id
             "◀▶ / kayu bedik: belok. Kereta laju sendiri. Lalu ⚡ untuk turbo!",
             "Arah / kayu bedik: gerak. Kutip beras. ★ = kucing takut, tangkap mereka!",
@@ -78,6 +88,12 @@ final class Arked4 {
             "▲ / B lompat · OK / A putar di udara. Mendarat dengan putaran lengkap!",
             "▲▼ / kayu bedik: naik turun. Lalu tengah gelang = markah lebih.",
             "Arah: gerak kotak · OK / A: bina / naik taraf menara.",
+            "Arah gerak · OK / A letak mercun. Elak percikan!",
+            "◀▶ lari · ▲▼ panjat tangga · OK / A lompat kelapa.",
+            "Arah lari · OK / A tendang. P1+P3 Biru, P2+P4 Merah.",
+            "◀▶ / kayu bedik: belok · OK / A guna barang dari kotak ?",
+            "Arah gerak · OK / A pecut. Jangan jatuh ke laut!",
+            "P1 kiri, P2 kanan (▲▼) · P3 atas, P4 bawah (◀▶). Jaga gol!",
     };
 
     final Party party;

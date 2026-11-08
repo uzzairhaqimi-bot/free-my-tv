@@ -535,6 +535,70 @@ final class FancyArt {
                 c.drawOval(cx + s * 0.45f, cy + s * 0.35f, cx + s * 0.95f, cy + s * 0.65f, p);
                 break;
             }
+            case 20: {   // a festive cracker with sparks
+                p.setColor(0xFFDC2626);
+                c.drawRoundRect(cx - s * 0.25f, cy - s * 0.5f, cx + s * 0.25f, cy + s * 0.7f, s * 0.08f, s * 0.08f, p);
+                p.setColor(0xFFFDE047);
+                c.drawRect(cx - s * 0.25f, cy, cx + s * 0.25f, cy + s * 0.12f, p);
+                for (int k = 0; k < 8; k++) { double an = k * Math.PI / 4; c.drawCircle(cx + (float) Math.cos(an) * s * 0.4f, cy - s * 0.75f + (float) Math.sin(an) * s * 0.25f, s * 0.07f, p); }
+                break;
+            }
+            case 21: {   // a coconut palm with a ladder
+                p.setColor(0xFF92400E);
+                c.drawRect(cx - s * 0.1f, cy - s * 0.5f, cx + s * 0.1f, cy + s, p);
+                p.setColor(0xFF16A34A);
+                c.drawOval(cx - s * 0.9f, cy - s * 0.85f, cx + s * 0.9f, cy - s * 0.45f, p);
+                p.setColor(0xFF78350F);
+                c.drawCircle(cx - s * 0.2f, cy - s * 0.4f, s * 0.15f, p);
+                c.drawCircle(cx + s * 0.15f, cy - s * 0.38f, s * 0.15f, p);
+                p.setColor(0xFFA16207);
+                p.setStrokeWidth(s * 0.06f);
+                c.drawLine(cx + s * 0.4f, cy - s * 0.2f, cx + s * 0.4f, cy + s, p);
+                c.drawLine(cx + s * 0.7f, cy - s * 0.2f, cx + s * 0.7f, cy + s, p);
+                for (int k = 0; k < 4; k++) c.drawLine(cx + s * 0.4f, cy + k * s * 0.3f, cx + s * 0.7f, cy + k * s * 0.3f, p);
+                break;
+            }
+            case 22: {   // a football
+                p.setColor(0xFFFFFFFF);
+                c.drawCircle(cx, cy, s * 0.75f, p);
+                p.setColor(0xFF111827);
+                c.drawCircle(cx, cy, s * 0.25f, p);
+                for (int k = 0; k < 5; k++) { double an = -Math.PI / 2 + k * Math.PI * 2 / 5; c.drawCircle(cx + (float) Math.cos(an) * s * 0.6f, cy + (float) Math.sin(an) * s * 0.6f, s * 0.15f, p); }
+                break;
+            }
+            case 23: {   // a kart with balloons
+                p.setColor(0xFF9333EA);
+                c.drawRoundRect(cx - s * 0.7f, cy + s * 0.1f, cx + s * 0.7f, cy + s * 0.55f, s * 0.15f, s * 0.15f, p);
+                p.setColor(0xFF111827);
+                c.drawCircle(cx - s * 0.45f, cy + s * 0.6f, s * 0.18f, p);
+                c.drawCircle(cx + s * 0.45f, cy + s * 0.6f, s * 0.18f, p);
+                int[] bc = {0xFFEF4444, 0xFFFACC15, 0xFF22D3EE};
+                for (int k = 0; k < 3; k++) { p.setColor(bc[k]); c.drawOval(cx - s * 0.6f + k * s * 0.4f, cy - s * 0.9f, cx - s * 0.3f + k * s * 0.4f, cy - s * 0.45f, p); }
+                break;
+            }
+            case 24: {   // bubbles on an island
+                p.setColor(0xFF0EA5E9);
+                c.drawCircle(cx, cy + s * 0.3f, s * 0.9f, p);
+                p.setColor(0xFF65A30D);
+                c.drawCircle(cx, cy + s * 0.3f, s * 0.65f, p);
+                p.setColor(0xDDF472B6);
+                c.drawCircle(cx - s * 0.25f, cy + s * 0.15f, s * 0.3f, p);
+                p.setColor(0xDD22D3EE);
+                c.drawCircle(cx + s * 0.3f, cy + s * 0.35f, s * 0.3f, p);
+                break;
+            }
+            case 25: {   // an air hockey table
+                p.setColor(0xFFE0F2FE);
+                c.drawRoundRect(cx - s * 0.8f, cy - s * 0.8f, cx + s * 0.8f, cy + s * 0.8f, s * 0.15f, s * 0.15f, p);
+                int[] pc = {0xFF22D3EE, 0xFFFF4FD8, 0xFFFACC15, 0xFF4ADE80};
+                p.setColor(pc[0]); c.drawRect(cx - s * 0.9f, cy - s * 0.25f, cx - s * 0.75f, cy + s * 0.25f, p);
+                p.setColor(pc[1]); c.drawRect(cx + s * 0.75f, cy - s * 0.25f, cx + s * 0.9f, cy + s * 0.25f, p);
+                p.setColor(pc[2]); c.drawRect(cx - s * 0.25f, cy - s * 0.9f, cx + s * 0.25f, cy - s * 0.75f, p);
+                p.setColor(pc[3]); c.drawRect(cx - s * 0.25f, cy + s * 0.75f, cx + s * 0.25f, cy + s * 0.9f, p);
+                p.setColor(0xFF111827);
+                c.drawCircle(cx + s * 0.15f, cy - s * 0.1f, s * 0.15f, p);
+                break;
+            }
             default: {   // letter tiles in quiz colours
                 String w = "KATA";
                 int[] col = {0xFF22C55E, 0xFFEAB308, 0xFF64748B, 0xFF22C55E};
