@@ -70,6 +70,9 @@ public class BoardActivity extends Activity {
         float W, H, t;
         long last;
         Shader bg;
+        final FancyArt.Aurora aurora = new FancyArt.Aurora(0xFF140A2E, 0xFF3B0A2A,
+                new int[]{0xFFF97316, 0xFF8B5CF6, 0xFF22D3EE}, new String[]{"⚀", "⚂", "⚄", "♜", "♞", "★", "⚁", "⚃", "⚅", "♛", "♟", "◆"});
+        final FancyArt.Cards cards = new FancyArt.Cards();
         int screen = MENU, sel, game;
         int players = 2;
         final boolean[] bot = {false, true, true, true};
@@ -115,17 +118,7 @@ public class BoardActivity extends Activity {
         }
 
         void card(Canvas c, RectF rr, int color, boolean on) {
-            g.setColor(on ? color : 0x22FFFFFF);
-            g.setShadowLayer(on ? 22 : 6, 0, 4, on ? color : 0x55000000);
-            c.drawRoundRect(rr, H * 0.03f, H * 0.03f, g);
-            g.setShadowLayer(0, 0, 0, 0);
-            if (on) {
-                g.setStyle(Paint.Style.STROKE);
-                g.setStrokeWidth(H * 0.005f);
-                g.setColor(0xFFFFFFFF);
-                c.drawRoundRect(rr, H * 0.03f, H * 0.03f, g);
-                g.setStyle(Paint.Style.FILL);
-            }
+            cards.draw(c, rr, color, on, t, H * 0.03f);
         }
 
         void say(String s) { msg = s; msgAt = SystemClock.uptimeMillis(); }
@@ -139,9 +132,11 @@ public class BoardActivity extends Activity {
             float dt = last == 0 ? 0 : Math.min(0.05f, (now - last) / 1000f);
             last = now;
             t += dt;
-            p.setShader(bg);
-            c.drawRect(0, 0, W, H, p);
-            p.setShader(null);
+            if (screen == PLAY) {
+                p.setShader(bg);
+                c.drawRect(0, 0, W, H, p);
+                p.setShader(null);
+            } else aurora.draw(c, W, H, t);
             if (screen == MENU) drawMenu(c);
             else if (screen == SETUP) drawSetup(c);
             else if (screen == PLAY) {
@@ -169,44 +164,22 @@ public class BoardActivity extends Activity {
             for (int i = 0; i < 5; i++) {
                 r.set(x0 + i * (cw + gap), H * 0.3f, x0 + i * (cw + gap) + cw, H * 0.78f);
                 boolean on = i == sel;
-                if (on) r.offset(0, -H * 0.02f);
+                if (on) { r.offset(0, -H * 0.02f); float gr = W * (0.005f + 0.003f * (float) Math.sin(t * 3)); r.inset(-gr, -gr); }
                 card(c, r, COLS[i], on);
-                drawIcon(c, i, r.centerX(), r.top + H * 0.14f, H * 0.07f);
+                drawIcon(c, i, r.centerX(), r.top + H * 0.14f + (on ? (float) Math.sin(t * 4) * H * 0.01f : 0), H * 0.07f);
                 fit(c, NAMES[i], r.centerX(), r.top + H * 0.29f, cw * 0.9f, H * 0.034f, 0xFFFFFFFF);
                 wrapped(c, HINTS[i], r.left + cw * 0.08f, r.top + H * 0.34f, cw * 0.84f, H * 0.024f, 0xDDFFFFFF, Layout.Alignment.ALIGN_CENTER);
             }
             text(c, "◀▶ pilih   ·   OK main   ·   Back keluar", W / 2, H * 0.92f, H * 0.028f, 0x99FFFFFF, Paint.Align.CENTER);
         }
 
+        final android.graphics.Bitmap[] icons = new android.graphics.Bitmap[5];
+
+        /** The game's picture, drawn once at this screen's size; s is half its height. */
         void drawIcon(Canvas c, int i, float cx, float cy, float s) {
-            g.setColor(0xFFFFFFFF);
-            switch (i) {
-                case HARTA:   // a little house
-                    c.drawRect(cx - s * 0.6f, cy - s * 0.1f, cx + s * 0.6f, cy + s * 0.7f, g);
-                    android.graphics.Path roof = new android.graphics.Path();
-                    roof.moveTo(cx - s * 0.8f, cy - s * 0.05f); roof.lineTo(cx, cy - s * 0.8f); roof.lineTo(cx + s * 0.8f, cy - s * 0.05f); roof.close();
-                    c.drawPath(roof, g);
-                    g.setColor(COLS[0]); c.drawRect(cx - s * 0.15f, cy + s * 0.25f, cx + s * 0.15f, cy + s * 0.7f, g);
-                    break;
-                case ULAR:   // a ladder
-                    g.setStrokeWidth(s * 0.14f);
-                    c.drawLine(cx - s * 0.4f, cy - s * 0.8f, cx - s * 0.4f, cy + s * 0.8f, g);
-                    c.drawLine(cx + s * 0.4f, cy - s * 0.8f, cx + s * 0.4f, cy + s * 0.8f, g);
-                    for (int k = 0; k < 4; k++) c.drawLine(cx - s * 0.4f, cy - s * 0.6f + k * s * 0.4f, cx + s * 0.4f, cy - s * 0.6f + k * s * 0.4f, g);
-                    break;
-                case CONGKAK:
-                    for (int k = 0; k < 3; k++) { g.setColor(0xFFFDE68A); c.drawCircle(cx + (k - 1) * s * 0.6f, cy, s * 0.25f, g); }
-                    break;
-                case JUARA:
-                    c.drawCircle(cx, cy - s * 0.15f, s * 0.5f, g);
-                    c.drawRect(cx - s * 0.12f, cy + s * 0.3f, cx + s * 0.12f, cy + s * 0.75f, g);
-                    break;
-                default:
-                    for (int k = 0; k < 5; k++) {
-                        g.setColor(k == 1 ? 0xFF22C55E : k == 3 ? 0xFFEAB308 : 0xFF64748B);
-                        c.drawRoundRect(cx - s + k * s * 0.42f, cy - s * 0.2f, cx - s + k * s * 0.42f + s * 0.36f, cy + s * 0.16f, 6, 6, g);
-                    }
-            }
+            int size = Math.max(16, Math.round(s * 2.4f));
+            if (icons[i] == null || icons[i].getWidth() != size) icons[i] = FancyArt.gameIcon(i, size);
+            c.drawBitmap(icons[i], cx - size / 2f, cy - size / 2f, null);
         }
 
         // ================================================================ setup

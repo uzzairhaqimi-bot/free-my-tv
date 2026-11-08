@@ -77,6 +77,9 @@ public class LearnActivity extends Activity {
         final float[] starX = new float[60], starY = new float[60];
         float W, H;
         Shader sky;
+        final FancyArt.Aurora aurora = new FancyArt.Aurora(0xFF0B1026, 0xFF134E4A,
+                new int[]{0xFF8B5CF6, 0xFF14B8A6, 0xFFF472B6}, new String[]{"A", "7", "+", "B", "×", "π", "9", "?", "★", "÷", "C", "3"});
+        final FancyArt.Cards cards = new FancyArt.Cards();
         int screen = KIDS, sel, kidSel, mode, subject;
         LearnStore.Kid kid;
 
@@ -142,18 +145,7 @@ public class LearnActivity extends Activity {
         }
 
         void card(Canvas c, RectF rr, int color, boolean on) {
-            g.setStyle(Paint.Style.FILL);
-            g.setColor(on ? color : 0x26FFFFFF);
-            g.setShadowLayer(on ? 26 : 8, 0, on ? 6 : 3, on ? color : 0x66000000);
-            c.drawRoundRect(rr, H * 0.035f, H * 0.035f, g);
-            g.setShadowLayer(0, 0, 0, 0);
-            if (on) {
-                g.setStyle(Paint.Style.STROKE);
-                g.setStrokeWidth(H * 0.006f);
-                g.setColor(0xFFFFFFFF);
-                c.drawRoundRect(rr, H * 0.035f, H * 0.035f, g);
-                g.setStyle(Paint.Style.FILL);
-            }
+            cards.draw(c, rr, color, on, t, H * 0.035f);
         }
 
         /** Bijak the owl: round body, big eyes, little ear tufts. mood: 0 calm, 1 happy, 2 oops. */
@@ -209,9 +201,12 @@ public class LearnActivity extends Activity {
             float dt = last == 0 ? 0 : Math.min(0.05f, (now - last) / 1000f);
             last = now;
             t += dt;
-            p.setShader(sky);
-            c.drawRect(0, 0, W, H, p);
-            p.setShader(null);
+            if (screen != PLAY) aurora.draw(c, W, H, t);
+            else {
+                p.setShader(sky);
+                c.drawRect(0, 0, W, H, p);
+                p.setShader(null);
+            }
             for (int i = 0; i < starX.length; i++) {
                 p.setColor(Color.argb(60 + (int) (60 * Math.sin(t * 2 + i)), 255, 255, 255));
                 c.drawCircle(starX[i] * W, starY[i] * H * 0.7f, H * 0.003f, p);
@@ -276,8 +271,9 @@ public class LearnActivity extends Activity {
                 int col = i % 4, row = i / 4;
                 r.set(x0 + col * (cw + gx), H * 0.27f + row * (ch + H * 0.04f), x0 + col * (cw + gx) + cw, H * 0.27f + row * (ch + H * 0.04f) + ch);
                 boolean on = i == sel;
+                if (on) { float gr = W * (0.006f + 0.003f * (float) Math.sin(t * 3)); r.inset(-gr, -gr); }
                 card(c, r, MODE_COL[i], on);
-                drawModeIcon(c, i, r.centerX(), r.top + ch * 0.38f, ch * 0.28f);
+                drawModeIcon(c, i, r.centerX(), r.top + ch * 0.38f + (on ? (float) Math.sin(t * 4) * ch * 0.03f : 0), ch * 0.28f);
                 fit(c, MODES[i], r.centerX(), r.top + ch * 0.72f, cw * 0.9f, H * 0.038f, 0xFFFFFFFF);
                 fit(c, MODE_HINT[i], r.centerX(), r.top + ch * 0.88f, cw * 0.9f, H * 0.024f, 0xDDFFFFFF);
                 if (i == REVIEW) text(c, kid.mistakes.size() + " soalan", r.right - W * 0.015f, r.top + H * 0.05f, H * 0.024f, 0xFFFFFFFF, Paint.Align.RIGHT);

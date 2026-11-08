@@ -56,6 +56,9 @@ public class ExtrasActivity extends Activity {
         if (i.hasExtra("video")) { x.video = i.getBooleanExtra("video", x.video); any = true; }
         if (i.hasExtra("led")) { x.led = i.getBooleanExtra("led", x.led); any = true; }
         if (i.hasExtra("music")) { x.musicLink = String.valueOf(i.getStringExtra("music")).trim(); x.music = !Extras.parse(x.musicLink).empty(); any = true; }
+        if (i.hasExtra("videoEvery")) { x.videoEvery = Math.max(0, Math.min(60, i.getIntExtra("videoEvery", 5))); any = true; }
+        if (i.hasExtra("musicVol")) { x.musicVol = Math.max(0, Math.min(2, i.getIntExtra("musicVol", 1))); any = true; }
+        if (i.hasExtra("quotes")) { x.quotes = i.getBooleanExtra("quotes", x.quotes); any = true; }
         if (i.hasExtra("ledStyle")) { x.ledStyle = Math.max(0, Math.min(2, i.getIntExtra("ledStyle", 0))); any = true; }
         if (!any) return false;
         x.save(this);

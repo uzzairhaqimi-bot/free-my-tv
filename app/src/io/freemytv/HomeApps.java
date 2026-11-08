@@ -1282,6 +1282,8 @@ final class HomeApps {
     /** Settings and the like: the icon in white on a dark card. */
     private static synchronized Bitmap symbolTile(Context c, String key, String symbol) {
         if (TILES.containsKey(key)) return TILES.get(key);
+        Bitmap fancy = FancyArt.tile(key, TILE_W, TILE_H);   // fork extras: drawn cards
+        if (fancy != null) { TILES.put(key, fancy); return fancy; }
         Bitmap b = darkTile(TILE_W, TILE_H);
         Symbols.warm(c, symbol, TILE_H * 0.36f);
         Symbols.draw(c, new Canvas(b), symbol, TILE_W / 2f, TILE_H / 2f, TILE_H * 0.36f, 0xF2FFFFFF);
