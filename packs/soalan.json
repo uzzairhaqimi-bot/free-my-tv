@@ -73,6 +73,1806 @@
     "🐈 kucing"
    ],
    "e": "Ikan bernafas dengan insang."
+  },
+  {
+   "s": 1,
+   "l": 1,
+   "q": "🦆 Ini ialah…",
+   "a": [
+    "itik",
+    "kucing",
+    "ikan",
+    "lembu"
+   ],
+   "e": "Gambar ini ialah itik."
+  },
+  {
+   "s": 1,
+   "l": 1,
+   "q": "🐢 Ini ialah…",
+   "a": [
+    "kura-kura",
+    "katak",
+    "ketam",
+    "siput"
+   ],
+   "e": "Gambar ini ialah kura-kura."
+  },
+  {
+   "s": 1,
+   "l": 1,
+   "q": "🦀 Ini ialah…",
+   "a": [
+    "ketam",
+    "udang",
+    "ikan",
+    "sotong"
+   ],
+   "e": "Gambar ini ialah ketam."
+  },
+  {
+   "s": 1,
+   "l": 1,
+   "q": "🐊 Ini ialah…",
+   "a": [
+    "buaya",
+    "ular",
+    "cicak",
+    "katak"
+   ],
+   "e": "Gambar ini ialah buaya."
+  },
+  {
+   "s": 1,
+   "l": 1,
+   "q": "🍉 Ini buah…",
+   "a": [
+    "tembikai",
+    "betik",
+    "nanas",
+    "mangga"
+   ],
+   "e": "Gambar ini ialah buah tembikai."
+  },
+  {
+   "s": 1,
+   "l": 1,
+   "q": "🍍 Ini buah…",
+   "a": [
+    "nanas",
+    "durian",
+    "epal",
+    "anggur"
+   ],
+   "e": "Gambar ini ialah buah nanas."
+  },
+  {
+   "s": 1,
+   "l": 1,
+   "q": "🚲 Ini ialah…",
+   "a": [
+    "basikal",
+    "motosikal",
+    "kereta",
+    "bas"
+   ],
+   "e": "Gambar ini ialah basikal."
+  },
+  {
+   "s": 1,
+   "l": 1,
+   "q": "✈️ Ini ialah…",
+   "a": [
+    "kapal terbang",
+    "kapal",
+    "kereta api",
+    "bas"
+   ],
+   "e": "Gambar ini ialah kapal terbang."
+  },
+  {
+   "s": 1,
+   "l": 1,
+   "q": "👴 Lawan bagi 'tua' ialah…",
+   "a": [
+    "muda",
+    "lama",
+    "besar",
+    "tinggi"
+   ],
+   "e": "tua ↔ muda"
+  },
+  {
+   "s": 1,
+   "l": 1,
+   "q": "⬆️ Lawan bagi 'atas' ialah…",
+   "a": [
+    "bawah",
+    "tepi",
+    "luar",
+    "dalam"
+   ],
+   "e": "atas ↔ bawah"
+  },
+  {
+   "s": 1,
+   "l": 1,
+   "q": "🐍 Huruf pertama bagi 'ular' ialah…",
+   "a": [
+    "u",
+    "l",
+    "a",
+    "r"
+   ],
+   "e": "u-lar: huruf pertama ialah u."
+  },
+  {
+   "s": 1,
+   "l": 1,
+   "q": "🌸 Suku kata pertama bagi 'bunga' ialah…",
+   "a": [
+    "bu",
+    "ga",
+    "bun",
+    "nga"
+   ],
+   "e": "bu-nga"
+  },
+  {
+   "s": 1,
+   "l": 2,
+   "q": "🍞 ___ roti",
+   "a": [
+    "sebuku",
+    "seekor",
+    "sehelai",
+    "sebatang"
+   ],
+   "e": "Roti guna 'sebuku'."
+  },
+  {
+   "s": 1,
+   "l": 2,
+   "q": "💐 ___ bunga (banyak kuntum diikat bersama)",
+   "a": [
+    "sejambak",
+    "seekor",
+    "sebuah",
+    "sebiji"
+   ],
+   "e": "Bunga yang diikat bersama guna 'sejambak'."
+  },
+  {
+   "s": 1,
+   "l": 2,
+   "q": "🥥 ___ kelapa",
+   "a": [
+    "sebiji",
+    "seekor",
+    "sehelai",
+    "seorang"
+   ],
+   "e": "Buah bulat guna 'sebiji'."
+  },
+  {
+   "s": 1,
+   "l": 2,
+   "q": "🪡 ___ jarum",
+   "a": [
+    "sebatang",
+    "sebiji",
+    "seekor",
+    "sebuah"
+   ],
+   "e": "Benda panjang dan halus guna 'sebatang'."
+  },
+  {
+   "s": 1,
+   "l": 2,
+   "q": "🖍️ Adik ___ gambar bunga.",
+   "a": [
+    "melukis",
+    "lukis",
+    "dilukis",
+    "pelukis"
+   ],
+   "e": "meN + lukis = melukis"
+  },
+  {
+   "s": 1,
+   "l": 2,
+   "q": "🏊 Abang ___ di kolam renang.",
+   "a": [
+    "berenang",
+    "renang",
+    "direnang",
+    "perenang"
+   ],
+   "e": "ber + renang = berenang"
+  },
+  {
+   "s": 1,
+   "l": 2,
+   "q": "🎣 Ayah suka ___ ikan di sungai.",
+   "a": [
+    "memancing",
+    "pancing",
+    "dipancing",
+    "pemancing"
+   ],
+   "e": "meN + pancing = memancing"
+  },
+  {
+   "s": 1,
+   "l": 2,
+   "q": "🐦🐦🐦 Banyak burung ditulis sebagai…",
+   "a": [
+    "burung-burung",
+    "burungburung",
+    "burung burung",
+    "burung2"
+   ],
+   "e": "Kata ganda ditulis dengan tanda sempang (-)."
+  },
+  {
+   "s": 1,
+   "l": 2,
+   "q": "🥛 Gelas ini penuh. Lawan bagi 'penuh' ialah…",
+   "a": [
+    "kosong",
+    "banyak",
+    "berat",
+    "besar"
+   ],
+   "e": "penuh ↔ kosong"
+  },
+  {
+   "s": 1,
+   "l": 2,
+   "q": "☀️ Baju sudah kering. Lawan bagi 'kering' ialah…",
+   "a": [
+    "basah",
+    "panas",
+    "bersih",
+    "kotor"
+   ],
+   "e": "kering ↔ basah"
+  },
+  {
+   "s": 1,
+   "l": 2,
+   "q": "🥥 Berapakah suku kata dalam perkataan 'kelapa'?",
+   "a": [
+    "3",
+    "2",
+    "4",
+    "1"
+   ],
+   "e": "ke-la-pa: 3 suku kata."
+  },
+  {
+   "s": 1,
+   "l": 2,
+   "q": "👩 Perkataan yang sama maksud dengan 'emak' ialah…",
+   "a": [
+    "ibu",
+    "kakak",
+    "nenek",
+    "adik"
+   ],
+   "e": "emak = ibu"
+  },
+  {
+   "s": 1,
+   "l": 3,
+   "q": "Pilih penjodoh bilangan yang betul: ___ surat",
+   "a": [
+    "sepucuk",
+    "sebilah",
+    "seutas",
+    "sekaki"
+   ],
+   "e": "Surat guna 'sepucuk'."
+  },
+  {
+   "s": 1,
+   "l": 3,
+   "q": "Pilih penjodoh bilangan yang betul: ___ pisau",
+   "a": [
+    "sebilah",
+    "sepucuk",
+    "seutas",
+    "sekuntum"
+   ],
+   "e": "Benda tajam seperti pisau guna 'sebilah'."
+  },
+  {
+   "s": 1,
+   "l": 3,
+   "q": "Pilih penjodoh bilangan yang betul: ___ rantai",
+   "a": [
+    "seutas",
+    "sebilah",
+    "sepucuk",
+    "sekaki"
+   ],
+   "e": "Rantai guna 'seutas'."
+  },
+  {
+   "s": 1,
+   "l": 3,
+   "q": "Saya pergi ___ sekolah setiap pagi.",
+   "a": [
+    "ke",
+    "di",
+    "pada",
+    "oleh"
+   ],
+   "e": "'ke' menunjukkan arah tujuan."
+  },
+  {
+   "s": 1,
+   "l": 3,
+   "q": "Lawan bagi 'menang' ialah…",
+   "a": [
+    "kalah",
+    "seri",
+    "jatuh",
+    "lari"
+   ],
+   "e": "menang ↔ kalah"
+  },
+  {
+   "s": 1,
+   "l": 3,
+   "q": "Lawan bagi 'beli' ialah…",
+   "a": [
+    "jual",
+    "bayar",
+    "ambil",
+    "simpan"
+   ],
+   "e": "beli ↔ jual"
+  },
+  {
+   "s": 1,
+   "l": 3,
+   "q": "Lawan bagi 'datang' ialah…",
+   "a": [
+    "pergi",
+    "sampai",
+    "tiba",
+    "masuk"
+   ],
+   "e": "datang ↔ pergi"
+  },
+  {
+   "s": 1,
+   "l": 3,
+   "q": "Tanda baca di hujung ayat tanya ialah…",
+   "a": [
+    "tanda soal (?)",
+    "noktah (.)",
+    "koma (,)",
+    "tanda seru (!)"
+   ],
+   "e": "Ayat tanya diakhiri dengan tanda soal."
+  },
+  {
+   "s": 1,
+   "l": 3,
+   "q": "Maksud simpulan bahasa 'buah tangan' ialah…",
+   "a": [
+    "hadiah atau oleh-oleh",
+    "tangan yang besar",
+    "buah yang dipetik",
+    "kerja tangan"
+   ],
+   "e": "Buah tangan ialah hadiah yang dibawa untuk orang lain."
+  },
+  {
+   "s": 1,
+   "l": 3,
+   "q": "Maksud simpulan bahasa 'naik darah' ialah…",
+   "a": [
+    "marah",
+    "sakit",
+    "gembira",
+    "letih"
+   ],
+   "e": "Naik darah bermaksud marah."
+  },
+  {
+   "s": 1,
+   "l": 3,
+   "q": "Maksud simpulan bahasa 'makan angin' ialah…",
+   "a": [
+    "bersiar-siar",
+    "makan sedikit",
+    "kelaparan",
+    "bernafas"
+   ],
+   "e": "Makan angin bermaksud bersiar-siar atau bercuti."
+  },
+  {
+   "s": 1,
+   "l": 4,
+   "q": "Maksud simpulan bahasa 'lipas kudung' ialah…",
+   "a": [
+    "sangat pantas",
+    "sangat malas",
+    "sangat takut",
+    "sangat kotor"
+   ],
+   "e": "Lipas kudung bermaksud sangat pantas."
+  },
+  {
+   "s": 1,
+   "l": 4,
+   "q": "Maksud simpulan bahasa 'berat mulut' ialah…",
+   "a": [
+    "pendiam",
+    "suka bercakap",
+    "kuat makan",
+    "suka berbohong"
+   ],
+   "e": "Berat mulut bermaksud tidak suka bercakap."
+  },
+  {
+   "s": 1,
+   "l": 4,
+   "q": "Hadiah ini saya terima ___ ibu.",
+   "a": [
+    "daripada",
+    "dari",
+    "kepada",
+    "pada"
+   ],
+   "e": "'daripada' untuk orang; 'dari' untuk tempat dan masa."
+  },
+  {
+   "s": 1,
+   "l": 4,
+   "q": "Yang manakah kata majmuk?",
+   "a": [
+    "kapal terbang",
+    "berlari",
+    "rumah-rumah",
+    "cantik"
+   ],
+   "e": "Kata majmuk ialah gabungan dua kata yang membawa satu maksud."
+  },
+  {
+   "s": 1,
+   "l": 4,
+   "q": "Pilih penjodoh bilangan yang betul: ___ payung",
+   "a": [
+    "sekaki",
+    "seutas",
+    "sepucuk",
+    "sebiji"
+   ],
+   "e": "Payung guna 'sekaki'."
+  },
+  {
+   "s": 1,
+   "l": 4,
+   "q": "Kata ganti nama diri kedua ialah…",
+   "a": [
+    "awak",
+    "saya",
+    "dia",
+    "mereka"
+   ],
+   "e": "Diri kedua: orang yang kita bercakap dengannya (awak, kamu, anda)."
+  },
+  {
+   "s": 1,
+   "l": 5,
+   "q": "Maksud peribahasa 'Bagai pinang dibelah dua' ialah…",
+   "a": [
+    "sangat sepadan atau serupa",
+    "bergaduh sesama sendiri",
+    "berpecah dua",
+    "buah yang rosak"
+   ],
+   "e": "Dua orang yang sangat sepadan atau serupa."
+  },
+  {
+   "s": 1,
+   "l": 5,
+   "q": "Maksud peribahasa 'Seperti telur di hujung tanduk' ialah…",
+   "a": [
+    "dalam keadaan yang sangat bahaya",
+    "sangat mudah pecah",
+    "sangat bernilai",
+    "sangat tinggi"
+   ],
+   "e": "Keadaan yang sangat genting atau berbahaya."
+  },
+  {
+   "s": 1,
+   "l": 5,
+   "q": "Maksud peribahasa 'Ukur baju di badan sendiri' ialah…",
+   "a": [
+    "buat sesuatu mengikut kemampuan diri",
+    "pandai menjahit baju",
+    "suka membeli baju",
+    "meniru orang lain"
+   ],
+   "e": "Lakukan sesuatu mengikut kemampuan sendiri."
+  },
+  {
+   "s": 1,
+   "l": 5,
+   "q": "Kata seru dalam ayat 'Wah, cantiknya bunga itu!' ialah…",
+   "a": [
+    "Wah",
+    "cantiknya",
+    "bunga",
+    "itu"
+   ],
+   "e": "'Wah' melahirkan perasaan kagum."
+  },
+  {
+   "s": 1,
+   "l": 5,
+   "q": "Kata terbitan daripada 'ajar' yang bermaksud orang yang mengajar ialah…",
+   "a": [
+    "pengajar",
+    "pelajar",
+    "ajaran",
+    "belajar"
+   ],
+   "e": "peN + ajar = pengajar (orang yang mengajar)."
+  },
+  {
+   "s": 1,
+   "l": 6,
+   "q": "Maksud peribahasa 'Bagai cendawan tumbuh selepas hujan' ialah…",
+   "a": [
+    "banyak muncul dalam masa singkat",
+    "hujan turun dengan lebat",
+    "tumbuhan sangat subur",
+    "cendawan beracun"
+   ],
+   "e": "Sesuatu yang banyak muncul dalam masa yang singkat."
+  },
+  {
+   "s": 1,
+   "l": 6,
+   "q": "Maksud peribahasa 'Alang-alang menyeluk pekasam, biar sampai ke pangkal lengan' ialah…",
+   "a": [
+    "buat sesuatu biar sampai selesai",
+    "jangan makan pekasam",
+    "tangan menjadi kotor",
+    "buat kerja separuh jalan"
+   ],
+   "e": "Jika membuat sesuatu, biarlah sampai selesai."
+  },
+  {
+   "s": 1,
+   "l": 6,
+   "q": "Ayat songsang bagi 'Burung itu terbang tinggi.' ialah…",
+   "a": [
+    "Terbang tinggi burung itu.",
+    "Burung tinggi itu terbang.",
+    "Itu burung terbang tinggi.",
+    "Tinggi itu burung terbang."
+   ],
+   "e": "Ayat songsang: predikat di depan, subjek di belakang."
+  },
+  {
+   "s": 1,
+   "l": 6,
+   "q": "'Sayur-mayur' ialah kata ganda…",
+   "a": [
+    "berentak",
+    "penuh",
+    "separa",
+    "berimbuhan"
+   ],
+   "e": "Bunyi kata kedua berubah: kata ganda berentak."
+  },
+  {
+   "s": 2,
+   "l": 1,
+   "q": "🦒 What animal is this?",
+   "a": [
+    "giraffe",
+    "zebra",
+    "horse",
+    "camel"
+   ],
+   "e": "It is a giraffe."
+  },
+  {
+   "s": 2,
+   "l": 1,
+   "q": "🐧 What is this?",
+   "a": [
+    "penguin",
+    "duck",
+    "eagle",
+    "owl"
+   ],
+   "e": "It is a penguin."
+  },
+  {
+   "s": 2,
+   "l": 1,
+   "q": "🐢 What is this?",
+   "a": [
+    "turtle",
+    "frog",
+    "snail",
+    "crab"
+   ],
+   "e": "It is a turtle."
+  },
+  {
+   "s": 2,
+   "l": 1,
+   "q": "🥕 What is this?",
+   "a": [
+    "carrot",
+    "potato",
+    "onion",
+    "corn"
+   ],
+   "e": "It is a carrot."
+  },
+  {
+   "s": 2,
+   "l": 1,
+   "q": "🍇 What fruit is this?",
+   "a": [
+    "grapes",
+    "mango",
+    "pear",
+    "lemon"
+   ],
+   "e": "They are grapes."
+  },
+  {
+   "s": 2,
+   "l": 1,
+   "q": "🚲 What is this?",
+   "a": [
+    "bicycle",
+    "car",
+    "bus",
+    "train"
+   ],
+   "e": "It is a bicycle."
+  },
+  {
+   "s": 2,
+   "l": 1,
+   "q": "🚂 What is this?",
+   "a": [
+    "train",
+    "ship",
+    "plane",
+    "lorry"
+   ],
+   "e": "It is a train."
+  },
+  {
+   "s": 2,
+   "l": 1,
+   "q": "🔺 What shape is this?",
+   "a": [
+    "triangle",
+    "circle",
+    "square",
+    "star"
+   ],
+   "e": "A triangle has 3 sides."
+  },
+  {
+   "s": 2,
+   "l": 1,
+   "q": "🟢 What colour is this?",
+   "a": [
+    "green",
+    "red",
+    "blue",
+    "yellow"
+   ],
+   "e": "It is green."
+  },
+  {
+   "s": 2,
+   "l": 1,
+   "q": "🟣 What colour is this?",
+   "a": [
+    "purple",
+    "pink",
+    "brown",
+    "orange"
+   ],
+   "e": "It is purple."
+  },
+  {
+   "s": 2,
+   "l": 1,
+   "q": "🐥🐥🐥🐥 How many chicks?",
+   "a": [
+    "four",
+    "three",
+    "five",
+    "six"
+   ],
+   "e": "one, two, three, four"
+  },
+  {
+   "s": 2,
+   "l": 1,
+   "q": "💧 Opposite of 'wet' is…",
+   "a": [
+    "dry",
+    "cold",
+    "hot",
+    "clean"
+   ],
+   "e": "wet ↔ dry"
+  },
+  {
+   "s": 2,
+   "l": 2,
+   "q": "🐄 A baby cow is a…",
+   "a": [
+    "calf",
+    "kitten",
+    "puppy",
+    "cub"
+   ],
+   "e": "calf = anak lembu"
+  },
+  {
+   "s": 2,
+   "l": 2,
+   "q": "🐑 A baby sheep is a…",
+   "a": [
+    "lamb",
+    "chick",
+    "foal",
+    "kitten"
+   ],
+   "e": "lamb = anak biri-biri"
+  },
+  {
+   "s": 2,
+   "l": 2,
+   "q": "🦆 A baby duck is a…",
+   "a": [
+    "duckling",
+    "kitten",
+    "calf",
+    "lamb"
+   ],
+   "e": "duckling = anak itik"
+  },
+  {
+   "s": 2,
+   "l": 2,
+   "q": "We use our ___ to smell. 👃",
+   "a": [
+    "nose",
+    "ears",
+    "eyes",
+    "hands"
+   ],
+   "e": "The nose smells."
+  },
+  {
+   "s": 2,
+   "l": 2,
+   "q": "We use our ___ to taste. 👅",
+   "a": [
+    "tongue",
+    "nose",
+    "ears",
+    "feet"
+   ],
+   "e": "The tongue tastes."
+  },
+  {
+   "s": 2,
+   "l": 2,
+   "q": "🥛 Opposite of 'full' is…",
+   "a": [
+    "empty",
+    "big",
+    "heavy",
+    "long"
+   ],
+   "e": "full ↔ empty"
+  },
+  {
+   "s": 2,
+   "l": 2,
+   "q": "🦉 ___ owl is sleeping.",
+   "a": [
+    "An",
+    "A",
+    "Two",
+    "Many"
+   ],
+   "e": "Use 'an' before a vowel sound: an owl."
+  },
+  {
+   "s": 2,
+   "l": 2,
+   "q": "👦 Ali is my friend. ___ is kind.",
+   "a": [
+    "He",
+    "She",
+    "It",
+    "They"
+   ],
+   "e": "Ali is a boy: he."
+  },
+  {
+   "s": 2,
+   "l": 2,
+   "q": "👧 Siti is my sister. ___ likes to read.",
+   "a": [
+    "She",
+    "He",
+    "It",
+    "We"
+   ],
+   "e": "Siti is a girl: she."
+  },
+  {
+   "s": 2,
+   "l": 2,
+   "q": "🦁 We can see lions and tigers at the…",
+   "a": [
+    "zoo",
+    "school",
+    "library",
+    "bank"
+   ],
+   "e": "Wild animals live at the zoo."
+  },
+  {
+   "s": 2,
+   "l": 2,
+   "q": "🔢 What number is 'twenty'?",
+   "a": [
+    "20",
+    "12",
+    "2",
+    "10"
+   ],
+   "e": "twenty = 20"
+  },
+  {
+   "s": 2,
+   "l": 2,
+   "q": "🧦 These are…",
+   "a": [
+    "socks",
+    "shoes",
+    "hats",
+    "gloves"
+   ],
+   "e": "They are socks."
+  },
+  {
+   "s": 2,
+   "l": 3,
+   "q": "Which word is an adjective (describing word)?",
+   "a": [
+    "beautiful",
+    "run",
+    "table",
+    "slowly"
+   ],
+   "e": "'Beautiful' describes a noun."
+  },
+  {
+   "s": 2,
+   "l": 3,
+   "q": "Which day comes before Sunday?",
+   "a": [
+    "Saturday",
+    "Monday",
+    "Friday",
+    "Tuesday"
+   ],
+   "e": "Saturday, Sunday"
+  },
+  {
+   "s": 2,
+   "l": 3,
+   "q": "Which month comes after June?",
+   "a": [
+    "July",
+    "May",
+    "August",
+    "April"
+   ],
+   "e": "June, July"
+  },
+  {
+   "s": 2,
+   "l": 3,
+   "q": "___ is your name?",
+   "a": [
+    "What",
+    "Who",
+    "Where",
+    "When"
+   ],
+   "e": "What is your name?"
+  },
+  {
+   "s": 2,
+   "l": 3,
+   "q": "___ old are you?",
+   "a": [
+    "How",
+    "What",
+    "Who",
+    "Which"
+   ],
+   "e": "How old are you?"
+  },
+  {
+   "s": 2,
+   "l": 3,
+   "q": "My father's brother is my…",
+   "a": [
+    "uncle",
+    "aunt",
+    "cousin",
+    "grandfather"
+   ],
+   "e": "uncle = bapa saudara"
+  },
+  {
+   "s": 2,
+   "l": 3,
+   "q": "A person who cooks food in a restaurant is a…",
+   "a": [
+    "chef",
+    "pilot",
+    "farmer",
+    "nurse"
+   ],
+   "e": "A chef cooks food."
+  },
+  {
+   "s": 2,
+   "l": 3,
+   "q": "We buy medicine at the…",
+   "a": [
+    "pharmacy",
+    "bakery",
+    "library",
+    "stadium"
+   ],
+   "e": "pharmacy = farmasi"
+  },
+  {
+   "s": 2,
+   "l": 3,
+   "q": "The ball is ___ the two boxes. (di antara)",
+   "a": [
+    "between",
+    "under",
+    "on",
+    "behind"
+   ],
+   "e": "between = di antara"
+  },
+  {
+   "s": 2,
+   "l": 3,
+   "q": "The past tense of 'sleep' is…",
+   "a": [
+    "slept",
+    "sleeped",
+    "sleeps",
+    "sleeping"
+   ],
+   "e": "sleep → slept"
+  },
+  {
+   "s": 2,
+   "l": 3,
+   "q": "Opposite of 'early' is…",
+   "a": [
+    "late",
+    "fast",
+    "soon",
+    "first"
+   ],
+   "e": "early ↔ late"
+  },
+  {
+   "s": 2,
+   "l": 4,
+   "q": "There ___ many books on the shelf.",
+   "a": [
+    "are",
+    "is",
+    "am",
+    "be"
+   ],
+   "e": "Many books (plural): there are."
+  },
+  {
+   "s": 2,
+   "l": 4,
+   "q": "A group of birds is called a…",
+   "a": [
+    "flock",
+    "herd",
+    "school",
+    "pack"
+   ],
+   "e": "a flock of birds"
+  },
+  {
+   "s": 2,
+   "l": 4,
+   "q": "A group of cows is called a…",
+   "a": [
+    "herd",
+    "flock",
+    "swarm",
+    "school"
+   ],
+   "e": "a herd of cows"
+  },
+  {
+   "s": 2,
+   "l": 4,
+   "q": "Which word sounds like 'sea' but has a different meaning?",
+   "a": [
+    "see",
+    "say",
+    "sew",
+    "sit"
+   ],
+   "e": "sea (laut) and see (lihat) sound the same."
+  },
+  {
+   "s": 2,
+   "l": 4,
+   "q": "big → bigger → ___",
+   "a": [
+    "biggest",
+    "bigest",
+    "more big",
+    "most big"
+   ],
+   "e": "big, bigger, biggest"
+  },
+  {
+   "s": 2,
+   "l": 4,
+   "q": "The plural of 'knife' is…",
+   "a": [
+    "knives",
+    "knifes",
+    "knifs",
+    "knive"
+   ],
+   "e": "knife → knives"
+  },
+  {
+   "s": 2,
+   "l": 5,
+   "q": "She has lived in Ipoh ___ 2010.",
+   "a": [
+    "since",
+    "for",
+    "from",
+    "at"
+   ],
+   "e": "'since' + a point in time."
+  },
+  {
+   "s": 2,
+   "l": 5,
+   "q": "I have been waiting ___ two hours.",
+   "a": [
+    "for",
+    "since",
+    "at",
+    "on"
+   ],
+   "e": "'for' + a length of time."
+  },
+  {
+   "s": 2,
+   "l": 5,
+   "q": "The letter ___ written yesterday.",
+   "a": [
+    "was",
+    "is",
+    "were",
+    "has"
+   ],
+   "e": "Passive, past, singular: was written."
+  },
+  {
+   "s": 2,
+   "l": 5,
+   "q": "A group of fish is called a…",
+   "a": [
+    "school",
+    "flock",
+    "herd",
+    "team"
+   ],
+   "e": "a school of fish"
+  },
+  {
+   "s": 2,
+   "l": 5,
+   "q": "Which word is an adverb?",
+   "a": [
+    "quickly",
+    "quick",
+    "quicker",
+    "quickness"
+   ],
+   "e": "An adverb tells how: quickly."
+  },
+  {
+   "s": 2,
+   "l": 6,
+   "q": "If I ___ a bird, I would fly to the clouds.",
+   "a": [
+    "were",
+    "am",
+    "is",
+    "be"
+   ],
+   "e": "Imagined situations use 'were': If I were…"
+  },
+  {
+   "s": 2,
+   "l": 6,
+   "q": "'A piece of cake' means something is…",
+   "a": [
+    "very easy",
+    "very sweet",
+    "very small",
+    "very expensive"
+   ],
+   "e": "'It's a piece of cake' = it's very easy."
+  },
+  {
+   "s": 2,
+   "l": 6,
+   "q": "'Under the weather' means…",
+   "a": [
+    "feeling unwell",
+    "standing in the rain",
+    "very happy",
+    "very cold weather"
+   ],
+   "e": "'I'm under the weather' = I feel a little sick."
+  },
+  {
+   "s": 2,
+   "l": 6,
+   "q": "'It's raining cats and dogs' means…",
+   "a": [
+    "it is raining very heavily",
+    "animals are falling",
+    "it is raining a little",
+    "pets are playing outside"
+   ],
+   "e": "It means very heavy rain."
+  },
+  {
+   "s": 3,
+   "l": 1,
+   "q": "🚦 Lampu isyarat merah bermaksud…",
+   "a": [
+    "berhenti",
+    "jalan",
+    "laju",
+    "pusing"
+   ],
+   "e": "Merah: berhenti."
+  },
+  {
+   "s": 3,
+   "l": 1,
+   "q": "🐣 Anak ayam menetas daripada…",
+   "a": [
+    "telur",
+    "susu",
+    "sarang",
+    "batu"
+   ],
+   "e": "Ayam bertelur, kemudian anak ayam menetas."
+  },
+  {
+   "s": 3,
+   "l": 1,
+   "q": "Yang manakah sayur?",
+   "a": [
+    "🥕 lobak merah",
+    "🍌 pisang",
+    "🍇 anggur",
+    "🍉 tembikai"
+   ],
+   "e": "Lobak merah ialah sayur."
+  },
+  {
+   "s": 3,
+   "l": 1,
+   "q": "Yang manakah boleh terbang?",
+   "a": [
+    "🦋 rama-rama",
+    "🐌 siput",
+    "🐢 kura-kura",
+    "🐟 ikan"
+   ],
+   "e": "Rama-rama mempunyai sayap."
+  },
+  {
+   "s": 3,
+   "l": 1,
+   "q": "Haiwan manakah yang mempunyai cengkerang?",
+   "a": [
+    "🐢 kura-kura",
+    "🐕 anjing",
+    "🐒 monyet",
+    "🐦 burung"
+   ],
+   "e": "Kura-kura mempunyai cengkerang yang keras."
+  },
+  {
+   "s": 3,
+   "l": 1,
+   "q": "Yang manakah hidup di dalam laut?",
+   "a": [
+    "🐙 sotong",
+    "🐄 lembu",
+    "🐓 ayam",
+    "🐈 kucing"
+   ],
+   "e": "Sotong hidup di laut."
+  },
+  {
+   "s": 3,
+   "l": 1,
+   "q": "🦷 Terlalu banyak makan gula-gula boleh merosakkan…",
+   "a": [
+    "gigi",
+    "rambut",
+    "kuku",
+    "kaki"
+   ],
+   "e": "Gula boleh menyebabkan gigi rosak."
+  },
+  {
+   "s": 3,
+   "l": 1,
+   "q": "🐌 Siput bergerak dengan sangat…",
+   "a": [
+    "perlahan",
+    "laju",
+    "tinggi",
+    "jauh"
+   ],
+   "e": "Siput bergerak perlahan."
+  },
+  {
+   "s": 3,
+   "l": 1,
+   "q": "🥛 Kita mendapat susu daripada…",
+   "a": [
+    "🐄 lembu",
+    "🐔 ayam",
+    "🐟 ikan",
+    "🐈 kucing"
+   ],
+   "e": "Lembu memberi kita susu."
+  },
+  {
+   "s": 3,
+   "l": 1,
+   "q": "🏥 Apabila sakit teruk, kita pergi ke…",
+   "a": [
+    "hospital",
+    "pasar",
+    "sekolah",
+    "taman"
+   ],
+   "e": "Doktor merawat orang sakit di hospital."
+  },
+  {
+   "s": 3,
+   "l": 1,
+   "q": "🚒 Ahli bomba memadamkan…",
+   "a": [
+    "kebakaran",
+    "lampu",
+    "televisyen",
+    "hujan"
+   ],
+   "e": "Bomba memadamkan api dan kebakaran."
+  },
+  {
+   "s": 3,
+   "l": 1,
+   "q": "🌍 Kita tinggal di planet…",
+   "a": [
+    "Bumi",
+    "Marikh",
+    "Musytari",
+    "Zuhal"
+   ],
+   "e": "Kita tinggal di Bumi."
+  },
+  {
+   "s": 3,
+   "l": 2,
+   "q": "🚦 Lampu isyarat hijau bermaksud…",
+   "a": [
+    "boleh jalan",
+    "berhenti",
+    "berundur",
+    "pusing balik"
+   ],
+   "e": "Hijau: boleh jalan."
+  },
+  {
+   "s": 3,
+   "l": 2,
+   "q": "🚸 Tempat yang selamat untuk melintas jalan ialah…",
+   "a": [
+    "lintasan zebra",
+    "selekoh jalan",
+    "belakang bas",
+    "celah kereta"
+   ],
+   "e": "Lintas di lintasan zebra."
+  },
+  {
+   "s": 3,
+   "l": 2,
+   "q": "🐍 Ular bergerak dengan cara…",
+   "a": [
+    "menjalar",
+    "melompat",
+    "terbang",
+    "berjalan"
+   ],
+   "e": "Ular tiada kaki; ia menjalar."
+  },
+  {
+   "s": 3,
+   "l": 2,
+   "q": "🌵 Kaktus biasanya tumbuh di kawasan…",
+   "a": [
+    "gurun",
+    "kutub",
+    "laut",
+    "paya"
+   ],
+   "e": "Kaktus menyimpan air dan hidup di gurun."
+  },
+  {
+   "s": 3,
+   "l": 2,
+   "q": "🐧 Penguin ialah burung yang tidak boleh…",
+   "a": [
+    "terbang",
+    "berenang",
+    "berjalan",
+    "makan ikan"
+   ],
+   "e": "Penguin tidak boleh terbang tetapi pandai berenang."
+  },
+  {
+   "s": 3,
+   "l": 2,
+   "q": "🐓 Ayam jantan biasanya berkokok pada waktu…",
+   "a": [
+    "pagi",
+    "tengah hari",
+    "petang",
+    "tengah malam"
+   ],
+   "e": "Ayam jantan berkokok pada awal pagi."
+  },
+  {
+   "s": 3,
+   "l": 2,
+   "q": "🌍 Bentuk Bumi ialah…",
+   "a": [
+    "bulat seperti bola",
+    "rata seperti meja",
+    "segi empat",
+    "segi tiga"
+   ],
+   "e": "Bumi berbentuk sfera (bulat)."
+  },
+  {
+   "s": 3,
+   "l": 2,
+   "q": "🌊 Air laut rasanya…",
+   "a": [
+    "masin",
+    "manis",
+    "masam",
+    "pahit"
+   ],
+   "e": "Air laut mengandungi garam."
+  },
+  {
+   "s": 3,
+   "l": 2,
+   "q": "🇲🇾 Bahasa kebangsaan Malaysia ialah…",
+   "a": [
+    "Bahasa Melayu",
+    "Bahasa Inggeris",
+    "Bahasa Arab",
+    "Bahasa Jepun"
+   ],
+   "e": "Bahasa Melayu ialah bahasa kebangsaan."
+  },
+  {
+   "s": 3,
+   "l": 2,
+   "q": "💧 Air paip yang selamat diminum ialah air yang telah…",
+   "a": [
+    "dimasak",
+    "disejukkan",
+    "diwarnakan",
+    "dibekukan"
+   ],
+   "e": "Air dimasak sampai mendidih untuk membunuh kuman."
+  },
+  {
+   "s": 3,
+   "l": 2,
+   "q": "🐑 Bulu biri-biri digunakan untuk membuat…",
+   "a": [
+    "kain bulu",
+    "kertas",
+    "kaca",
+    "plastik"
+   ],
+   "e": "Bulu biri-biri dijadikan benang dan kain bulu."
+  },
+  {
+   "s": 3,
+   "l": 2,
+   "q": "🖐️ Manusia mempunyai berapa deria?",
+   "a": [
+    "5",
+    "3",
+    "4",
+    "6"
+   ],
+   "e": "Penglihatan, pendengaran, bau, rasa dan sentuhan."
+  },
+  {
+   "s": 3,
+   "l": 3,
+   "q": "Haiwan yang makan tumbuhan dan daging dipanggil…",
+   "a": [
+    "omnivor",
+    "herbivor",
+    "karnivor",
+    "mamalia"
+   ],
+   "e": "Omnivor makan tumbuhan dan daging."
+  },
+  {
+   "s": 3,
+   "l": 3,
+   "q": "Nombor telefon kecemasan di Malaysia ialah…",
+   "a": [
+    "999",
+    "911",
+    "100",
+    "123"
+   ],
+   "e": "Hubungi 999 untuk polis, bomba atau ambulans."
+  },
+  {
+   "s": 3,
+   "l": 3,
+   "q": "Bunga yang terbesar di dunia ialah…",
+   "a": [
+    "Rafflesia",
+    "bunga raya",
+    "orkid",
+    "teratai"
+   ],
+   "e": "Rafflesia boleh sebesar payung kecil."
+  },
+  {
+   "s": 3,
+   "l": 3,
+   "q": "Minyak sawit diperoleh daripada pokok…",
+   "a": [
+    "kelapa sawit",
+    "getah",
+    "durian",
+    "kelapa"
+   ],
+   "e": "Buah kelapa sawit diproses menjadi minyak."
+  },
+  {
+   "s": 3,
+   "l": 3,
+   "q": "Ketupat biasanya dibalut dengan daun…",
+   "a": [
+    "kelapa muda",
+    "pisang",
+    "keladi",
+    "pandan"
+   ],
+   "e": "Ketupat dianyam daripada daun kelapa muda."
+  },
+  {
+   "s": 3,
+   "l": 3,
+   "q": "Ikan paus bernafas menggunakan…",
+   "a": [
+    "paru-paru",
+    "insang",
+    "kulit",
+    "sirip"
+   ],
+   "e": "Ikan paus ialah mamalia; ia bernafas dengan paru-paru."
+  },
+  {
+   "s": 3,
+   "l": 3,
+   "q": "Bahagian tumbuhan yang menarik serangga seperti lebah ialah…",
+   "a": [
+    "bunga",
+    "akar",
+    "batang",
+    "kulit kayu"
+   ],
+   "e": "Bunga yang berwarna dan berbau menarik serangga."
+  },
+  {
+   "s": 3,
+   "l": 3,
+   "q": "Benda yang tenggelam di dalam air ialah…",
+   "a": [
+    "syiling",
+    "gabus",
+    "daun kering",
+    "bola pingpong"
+   ],
+   "e": "Syiling berat dan tumpat, jadi ia tenggelam."
+  },
+  {
+   "s": 3,
+   "l": 3,
+   "q": "Kita memakai topi keledar ketika menunggang basikal untuk melindungi…",
+   "a": [
+    "kepala",
+    "kaki",
+    "tangan",
+    "perut"
+   ],
+   "e": "Topi keledar melindungi kepala."
+  },
+  {
+   "s": 3,
+   "l": 3,
+   "q": "Tarian Sumazau berasal dari negeri…",
+   "a": [
+    "Sabah",
+    "Kedah",
+    "Johor",
+    "Melaka"
+   ],
+   "e": "Sumazau ialah tarian tradisional Kadazandusun di Sabah."
+  },
+  {
+   "s": 3,
+   "l": 3,
+   "q": "Lebah hinggap pada bunga untuk mengambil…",
+   "a": [
+    "nektar",
+    "daun",
+    "akar",
+    "tanah"
+   ],
+   "e": "Lebah mengambil nektar untuk dijadikan madu."
+  },
+  {
+   "s": 3,
+   "l": 4,
+   "q": "Haiwan yang aktif pada waktu malam dipanggil haiwan…",
+   "a": [
+    "nokturnal",
+    "herbivor",
+    "mamalia",
+    "reptilia"
+   ],
+   "e": "Contoh haiwan nokturnal: burung hantu, kelawar."
+  },
+  {
+   "s": 3,
+   "l": 4,
+   "q": "Daya yang menarik semua objek jatuh ke Bumi ialah…",
+   "a": [
+    "graviti",
+    "geseran",
+    "magnet",
+    "angin"
+   ],
+   "e": "Graviti menarik objek ke Bumi."
+  },
+  {
+   "s": 3,
+   "l": 4,
+   "q": "Bunyi dihasilkan oleh…",
+   "a": [
+    "getaran",
+    "cahaya",
+    "haba",
+    "warna"
+   ],
+   "e": "Objek yang bergetar menghasilkan bunyi."
+  },
+  {
+   "s": 3,
+   "l": 4,
+   "q": "Ular, buaya dan cicak tergolong dalam kumpulan…",
+   "a": [
+    "reptilia",
+    "mamalia",
+    "amfibia",
+    "serangga"
+   ],
+   "e": "Reptilia mempunyai kulit bersisik."
+  },
+  {
+   "s": 3,
+   "l": 4,
+   "q": "Rumah panjang ialah kediaman tradisional kaum Iban di negeri…",
+   "a": [
+    "Sarawak",
+    "Kelantan",
+    "Perlis",
+    "Pahang"
+   ],
+   "e": "Kaum Iban di Sarawak tinggal di rumah panjang."
+  },
+  {
+   "s": 3,
+   "l": 4,
+   "q": "Kutub Selatan terletak di benua…",
+   "a": [
+    "Antartika",
+    "Afrika",
+    "Asia",
+    "Eropah"
+   ],
+   "e": "Kutub Selatan berada di Antartika."
+  },
+  {
+   "s": 3,
+   "l": 5,
+   "q": "Daya yang melambatkan objek yang bergerak di atas sesuatu permukaan ialah…",
+   "a": [
+    "geseran",
+    "graviti",
+    "apungan",
+    "magnet"
+   ],
+   "e": "Geseran berlaku antara dua permukaan."
+  },
+  {
+   "s": 3,
+   "l": 5,
+   "q": "Dua kutub magnet yang sama akan…",
+   "a": [
+    "menolak",
+    "menarik",
+    "melekat",
+    "cair"
+   ],
+   "e": "Kutub sama menolak, kutub berlainan menarik."
+  },
+  {
+   "s": 3,
+   "l": 5,
+   "q": "Gerhana matahari berlaku apabila ___ berada di antara Bumi dan Matahari.",
+   "a": [
+    "Bulan",
+    "Marikh",
+    "Zuhrah",
+    "Musytari"
+   ],
+   "e": "Bulan menghalang cahaya Matahari."
+  },
+  {
+   "s": 3,
+   "l": 5,
+   "q": "Unit SI bagi jisim ialah…",
+   "a": [
+    "kilogram",
+    "meter",
+    "saat",
+    "liter"
+   ],
+   "e": "Jisim diukur dalam kilogram (kg)."
+  },
+  {
+   "s": 3,
+   "l": 5,
+   "q": "Proses wap air bertukar menjadi titisan air dipanggil…",
+   "a": [
+    "kondensasi",
+    "penyejatan",
+    "peleburan",
+    "pembekuan"
+   ],
+   "e": "Wap air yang sejuk menjadi titisan air: kondensasi."
+  },
+  {
+   "s": 3,
+   "l": 6,
+   "q": "Mamalia yang bertelur ialah…",
+   "a": [
+    "platipus",
+    "kelawar",
+    "ikan paus",
+    "kanggaru"
+   ],
+   "e": "Platipus ialah mamalia yang bertelur."
+  },
+  {
+   "s": 3,
+   "l": 6,
+   "q": "Bahan yang paling keras dalam badan manusia ialah…",
+   "a": [
+    "enamel gigi",
+    "tulang paha",
+    "kuku",
+    "tengkorak"
+   ],
+   "e": "Enamel yang menyalut gigi lebih keras daripada tulang."
+  },
+  {
+   "s": 3,
+   "l": 6,
+   "q": "Tasik semula jadi air tawar yang terbesar di Malaysia ialah…",
+   "a": [
+    "Tasik Bera",
+    "Tasik Kenyir",
+    "Tasik Chini",
+    "Tasik Temenggor"
+   ],
+   "e": "Tasik Kenyir lebih besar tetapi ia tasik buatan manusia."
+  },
+  {
+   "s": 3,
+   "l": 6,
+   "q": "Gas yang paling banyak dalam udara ialah…",
+   "a": [
+    "nitrogen",
+    "oksigen",
+    "karbon dioksida",
+    "hidrogen"
+   ],
+   "e": "Udara mengandungi kira-kira 78% nitrogen."
   }
  ]
 }
