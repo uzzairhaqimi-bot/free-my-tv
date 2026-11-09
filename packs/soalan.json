@@ -1,0 +1,78 @@
+{
+ "version": "2026-11-09",
+ "note": "Pek soalan mingguan Kelas Bijak. s: 1 BM, 2 English, 3 Sains & Umum. l: tahap 1-8. a[0] ialah jawapan betul.",
+ "items": [
+  {
+   "s": 1,
+   "l": 1,
+   "q": "🐔 ___ ayam",
+   "a": [
+    "seekor",
+    "sebuah",
+    "sebiji",
+    "sehelai"
+   ],
+   "e": "Haiwan guna 'seekor'."
+  },
+  {
+   "s": 1,
+   "l": 1,
+   "q": "Lawan bagi 'tinggi' ialah…",
+   "a": [
+    "rendah",
+    "besar",
+    "panjang",
+    "laju"
+   ],
+   "e": "tinggi ↔ rendah"
+  },
+  {
+   "s": 2,
+   "l": 1,
+   "q": "🐸 What is this?",
+   "a": [
+    "frog",
+    "fish",
+    "bird",
+    "duck"
+   ],
+   "e": "It is a frog."
+  },
+  {
+   "s": 2,
+   "l": 1,
+   "q": "Opposite of 'day' is…",
+   "a": [
+    "night",
+    "morning",
+    "sun",
+    "week"
+   ],
+   "e": "day ↔ night"
+  },
+  {
+   "s": 3,
+   "l": 1,
+   "q": "Yang manakah benda hidup?",
+   "a": [
+    "🌻 bunga matahari",
+    "🧸 anak patung",
+    "📱 telefon",
+    "🪑 kerusi"
+   ],
+   "e": "Tumbuhan ialah benda hidup."
+  },
+  {
+   "s": 3,
+   "l": 2,
+   "q": "Haiwan yang bernafas dengan insang ialah…",
+   "a": [
+    "🐟 ikan",
+    "🐄 lembu",
+    "🐔 ayam",
+    "🐈 kucing"
+   ],
+   "e": "Ikan bernafas dengan insang."
+  }
+ ]
+}

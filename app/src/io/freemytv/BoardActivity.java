@@ -46,13 +46,23 @@ public class BoardActivity extends Activity {
         board.requestFocus();
     }
 
+    private long resumedAt;
+
     @Override protected void onResume() {
         super.onResume();
+        Parent p = Parent.load(this);   // the parents' rules (ParentPage)
+        board.parentPlayedMs = p.playedMs;
+        board.parentLimitMs = p.limitMin * 60_000L;
+        board.blocked = p.blocked();
+        resumedAt = android.os.SystemClock.elapsedRealtime();
+        board.resumedAt = resumedAt;
         board.party.start(this);
         board.sound.resume(this);
     }
 
     @Override protected void onPause() {
+        if (resumedAt > 0) Parent.addPlayed(this, android.os.SystemClock.elapsedRealtime() - resumedAt);
+        resumedAt = 0;
         board.party.stop();
         board.sound.pause();
         super.onPause();
@@ -159,6 +169,12 @@ public class BoardActivity extends Activity {
             t += dt;
             sound.mood(screen == PLAY && (game == JUARA || game >= KANCIL) ? GameMusic.SEMANGAT : GameMusic.SANTAI);
             if (screen != PLAY || game < KANCIL) aurora.draw(c, W, H, t);   // Kancil and the arcade games draw their own
+            if (blocked == null && parentLimitMs > 0
+                    && parentPlayedMs + (SystemClock.elapsedRealtime() - resumedAt) >= parentLimitMs) {
+                blocked = "Masa main hari ini sudah habis ⏰  Jumpa esok!";
+                sound.sfx(GameMusic.SFX_WIN);
+            }
+            if (blocked != null) { drawBlocked(c); postInvalidateOnAnimation(); return; }
             if (screen == MENU) drawMenu(c);
             else if (screen == SETUP) drawSetup(c);
             else if (screen == PLAY) {
@@ -186,6 +202,12 @@ public class BoardActivity extends Activity {
                 text(c, msg, W / 2, H * 0.94f, H * 0.032f, 0xFFFFFFFF, Paint.Align.CENTER);
             }
             postInvalidateOnAnimation();
+        }
+
+        void drawBlocked(Canvas c) {
+            text(c, "🔒", W / 2, H * 0.36f, H * 0.14f, 0xFFFFFFFF, Paint.Align.CENTER);
+            wrapped(c, blocked, W * 0.15f, H * 0.45f, W * 0.7f, H * 0.05f, 0xFFFDE68A, Layout.Alignment.ALIGN_CENTER);
+            text(c, "Kelas Bijak masih boleh dibuka bila-bila masa  ·  Back untuk keluar", W / 2, H * 0.85f, H * 0.03f, 0xBBFFFFFF, Paint.Align.CENTER);
         }
 
         void drawMenu(Canvas c) {
@@ -217,6 +239,9 @@ public class BoardActivity extends Activity {
         }
 
         float menuScroll;
+        // the parents' rules: why games are closed (null: open), and today's limit as it runs out
+        String blocked;
+        long parentPlayedMs, parentLimitMs, resumedAt;
         int congkakLevel = 1;
         static final String[] CONGKAK_LEVELS = {"Mudah", "Sederhana", "Pakar"};
         final android.graphics.Bitmap[] icons = new android.graphics.Bitmap[NAMES.length];
@@ -1277,6 +1302,7 @@ public class BoardActivity extends Activity {
             boolean ok = k == KeyEvent.KEYCODE_DPAD_CENTER || k == KeyEvent.KEYCODE_ENTER || k == KeyEvent.KEYCODE_BUTTON_A;
             boolean back = k == KeyEvent.KEYCODE_BACK || k == KeyEvent.KEYCODE_BUTTON_B;
             if (e.getRepeatCount() > 0 && (ok || back)) return true;
+            if (blocked != null) return !back;   // closed by the parents' rules: only Back (out)
             switch (screen) {
                 case MENU:
                     if (back) return false;

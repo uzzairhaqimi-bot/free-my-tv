@@ -106,6 +106,7 @@ public class ExtrasActivity extends Activity {
         root.addView(sv, new LinearLayout.LayoutParams(0, -1, 0.62f));
 
         header("Paling Mudah");
+        row("👨‍👩‍👧 Halaman Ibu Bapa (telefon)", () -> "Kawal masa main, anak, mesej", this::parentPage);
         row("📱 Hantar lagu & video dari telefon", () -> "Imbas kod QR", this::phoneLinks);
 
         header("Video Latar Belakang");
@@ -263,6 +264,57 @@ public class ExtrasActivity extends Activity {
     }
 
     private LinkPage linkPage;
+    /** Kept by the process, not this screen: the page stays open its 30 minutes after Back. */
+    private static ParentPage parentPage;
+
+    @Override protected void onDestroy() {
+        if (linkPage != null) linkPage.close();
+        super.onDestroy();
+    }
+
+    private android.widget.ImageView qrImage(String url) {
+        boolean[][] m = Qr.encode(url);
+        int q = 4, n = m.length;
+        android.graphics.Bitmap b = android.graphics.Bitmap.createBitmap(n + q * 2, n + q * 2, android.graphics.Bitmap.Config.ARGB_8888);
+        b.eraseColor(Color.WHITE);
+        for (int y = 0; y < n; y++) for (int xx = 0; xx < n; xx++) if (m[y][xx]) b.setPixel(xx + q, y + q, Color.BLACK);
+        android.widget.ImageView img = new android.widget.ImageView(this);
+        android.graphics.drawable.BitmapDrawable d = new android.graphics.drawable.BitmapDrawable(getResources(), b);
+        d.setFilterBitmap(false);
+        img.setImageDrawable(d);
+        return img;
+    }
+
+    /** The parents' page on a phone (ParentPage), open for 30 minutes from this QR code. */
+    private void parentPage() {
+        java.net.InetAddress lan = KeyPage.lanAddress(this);
+        if (lan == null) { Toast.makeText(this, "TV tidak bersambung ke Wi-Fi", Toast.LENGTH_LONG).show(); return; }
+        try {
+            if (parentPage != null) parentPage.close();
+            parentPage = new ParentPage(this, lan);
+        } catch (java.io.IOException e) {
+            Toast.makeText(this, "Tidak dapat buka halaman ibu bapa", Toast.LENGTH_LONG).show();
+            return;
+        }
+        TextView how = new TextView(this);
+        how.setText("Imbas dengan telefon ibu atau bapa (Wi-Fi yang sama).\n\nDi telefon: lihat keadaan stick, kemajuan anak, "
+                + "tetapkan had masa main, waktu tidur, \"belajar dulu\", nama dan umur anak, hantar mesej ke TV dan ringankan stick.\n\n"
+                + "Halaman terbuka 30 minit. Tetapkan PIN supaya anak tak boleh ubah.");
+        how.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        how.setTextColor(0xFFE2E8F0);
+        how.setPadding(dp(16), 0, 0, 0);
+        LinearLayout wrap = new LinearLayout(this);
+        wrap.setOrientation(LinearLayout.HORIZONTAL);
+        wrap.setGravity(Gravity.CENTER_VERTICAL);
+        wrap.setPadding(dp(20), dp(10), dp(20), dp(10));
+        wrap.addView(qrImage(parentPage.url), new LinearLayout.LayoutParams(dp(230), dp(230)));
+        wrap.addView(how, new LinearLayout.LayoutParams(0, -2, 1));
+        new AlertDialog.Builder(this, android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle("Halaman Ibu Bapa")
+                .setView(wrap)
+                .setPositiveButton("Tutup (halaman kekal 30 minit)", null)
+                .show();
+    }
 
     /** Shows a QR code; the phone that scans it pastes the links (LinkPage), and they're saved as they come. */
     private void phoneLinks() {

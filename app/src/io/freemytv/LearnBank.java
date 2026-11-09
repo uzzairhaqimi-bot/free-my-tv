@@ -59,6 +59,7 @@ final class LearnBank {
         rnd = new Random(seed);
         LearnBankData.fill(items);
         JuaraBank.addTo(items);   // general knowledge, also asked in Siapa Juara?
+        LearnBankMore.addTo(items);   // more for the youngest, many with pictures
     }
 
     void add(Item it) { items.add(it); }

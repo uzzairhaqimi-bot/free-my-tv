@@ -36,13 +36,24 @@ public class RetroActivity extends Activity {
 
     private Game game;
 
+    private long resumedAt;
+
     @Override protected void onResume() {
         super.onResume();
+        String why = Parent.load(this).blocked();   // the parents' rules (ParentPage)
+        if (why != null) {
+            android.widget.Toast.makeText(this, why, android.widget.Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+        resumedAt = android.os.SystemClock.elapsedRealtime();
         game.party.start(this);
         game.invalidate();
     }
 
     @Override protected void onPause() {
+        if (resumedAt > 0) Parent.addPlayed(this, android.os.SystemClock.elapsedRealtime() - resumedAt);
+        resumedAt = 0;
         game.party.stop();
         super.onPause();
     }

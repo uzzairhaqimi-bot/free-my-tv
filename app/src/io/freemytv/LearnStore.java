@@ -25,7 +25,8 @@ final class LearnStore {
     static final int KIDS = 4;
     static final int[] COLORS = {0xFF22D3EE, 0xFFFF4FD8, 0xFFFACC15, 0xFF4ADE80};
     /** Where new question packs come from (a JSON file in a GitHub repo, raw). Empty: no online packs. */
-    static String packUrl = "";
+    /** The weekly pack: written to the fork's repository by a scheduled task; nothing happens while it isn't there. */
+    static String packUrl = "https://raw.githubusercontent.com/uzzairhaqimi-bot/free-my-tv/uzzair-extras/packs/soalan.json";
 
     static final class Kid {
         String name;
@@ -33,6 +34,10 @@ final class LearnStore {
         final int[] level = new int[4];
         final int[] streakRight = new int[4];
         int stars, days, lastDay;
+        /** Mod Mudah (easier: hints, more time, the level eases sooner) and reading questions aloud. */
+        boolean mudah, baca;
+        final int[] streakWrong = new int[4];
+        int answered, right;   // all time, for the parents' page
         final LinkedHashSet<String> recent = new LinkedHashSet<>();
         final List<String> mistakes = new ArrayList<>();
         final Set<String> badges = new LinkedHashSet<>();
@@ -49,6 +54,7 @@ final class LearnStore {
         for (int i = 0; i < KIDS; i++) {
             kids[i] = new Kid();
             kids[i].name = "Pemain " + (i + 1);
+            kids[i].baca = true;
         }
         load();
     }
@@ -64,14 +70,19 @@ final class LearnStore {
         noteSeen(k, q.key);
         int s = q.subject;
         if (k.level[s] == 0) k.level[s] = k.startLevel();
+        k.answered++;
         if (right) {
+            k.right++;
+            k.streakWrong[s] = 0;
             k.stars += 1 + (q.level >= 5 ? 1 : 0);
             k.streakRight[s]++;
             if (k.streakRight[s] >= 4 && k.level[s] < LearnBank.LEVELS) { k.level[s]++; k.streakRight[s] = 0; }
             k.mistakes.remove(q.key);
         } else {
             k.streakRight[s] = 0;
-            if (k.level[s] > 1 && Math.random() < 0.35) k.level[s]--;
+            k.streakWrong[s]++;
+            if (k.mudah && k.streakWrong[s] >= 2 && k.level[s] > 1) { k.level[s]--; k.streakWrong[s] = 0; }   // Mod Mudah: eases after 2 wrong
+            else if (!k.mudah && k.level[s] > 1 && Math.random() < 0.35) k.level[s]--;
             if (!q.key.startsWith("m:") && !k.mistakes.contains(q.key)) k.mistakes.add(q.key);
             while (k.mistakes.size() > 60) k.mistakes.remove(0);
         }
@@ -107,6 +118,10 @@ final class LearnStore {
                 k.stars = o.optInt("stars", 0);
                 k.days = o.optInt("days", 0);
                 k.lastDay = o.optInt("lastDay", 0);
+                k.mudah = o.optBoolean("mudah", k.age <= 8);
+                k.baca = o.optBoolean("baca", k.age <= 9);
+                k.answered = o.optInt("answered", 0);
+                k.right = o.optInt("right", 0);
                 JSONArray lv = o.optJSONArray("level");
                 for (int s = 0; lv != null && s < 4 && s < lv.length(); s++) k.level[s] = lv.getInt(s);
                 JSONArray rc = o.optJSONArray("recent");
@@ -129,6 +144,10 @@ final class LearnStore {
                 o.put("stars", k.stars);
                 o.put("days", k.days);
                 o.put("lastDay", k.lastDay);
+                o.put("mudah", k.mudah);
+                o.put("baca", k.baca);
+                o.put("answered", k.answered);
+                o.put("right", k.right);
                 JSONArray lv = new JSONArray();
                 for (int v : k.level) lv.put(v);
                 o.put("level", lv);

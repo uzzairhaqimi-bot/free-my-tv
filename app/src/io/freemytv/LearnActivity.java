@@ -44,11 +44,34 @@ public class LearnActivity extends Activity {
         sound.attach(root);
         v.sound = sound;
         setContentView(root);
+        try { tts = new android.speech.tts.TextToSpeech(this, st -> ttsReady = st == android.speech.tts.TextToSpeech.SUCCESS); } catch (Throwable ignored) { }
         v.setFocusable(true);
         v.requestFocus();
     }
 
     private final GameSound sound = new GameSound();
+
+    /** Reads questions aloud (Mod "bacakan soalan"), in Malay where the TV has it, English for English. */
+    private android.speech.tts.TextToSpeech tts;
+    private boolean ttsReady;
+
+    void speak(String text, boolean english) {
+        if (!ttsReady || text == null) return;
+        try {
+            java.util.Locale ms = new java.util.Locale("ms", "MY"), id = new java.util.Locale("id", "ID");
+            java.util.Locale want = english ? java.util.Locale.UK
+                    : tts.isLanguageAvailable(ms) >= android.speech.tts.TextToSpeech.LANG_AVAILABLE ? ms
+                    : tts.isLanguageAvailable(id) >= android.speech.tts.TextToSpeech.LANG_AVAILABLE ? id : java.util.Locale.UK;
+            tts.setLanguage(want);
+            tts.setSpeechRate(0.9f);
+            tts.speak(text.replace("…", ", ").replace("_", " "), android.speech.tts.TextToSpeech.QUEUE_FLUSH, null, "q");
+        } catch (Throwable ignored) { }
+    }
+
+    @Override protected void onDestroy() {
+        try { if (tts != null) tts.shutdown(); } catch (Throwable ignored) { }
+        super.onDestroy();
+    }
 
     @Override protected void onResume() {
         super.onResume();
@@ -104,6 +127,12 @@ public class LearnActivity extends Activity {
         LearnBank.Q q;
         int qNo, rights, total, pick;
         long qStart, feedbackAt;
+        int hideA = -1, hideB = -1;
+
+        /** Mod Mudah: after 8 seconds two wrong answers are hidden. */
+        boolean hidden(int i) {
+            return kid != null && kid.mudah && !feedback && (i == hideA || i == hideB) && SystemClock.uptimeMillis() - qStart > 8000;
+        }
         boolean feedback, lastRight;
         float timeLimit = 20f;
         float rocket, rocketShake;
@@ -266,8 +295,11 @@ public class LearnActivity extends Activity {
                 fit(c, k.name, r.centerX(), r.top + H * 0.33f, cw * 0.9f, H * 0.04f, 0xFFFFFFFF);
                 text(c, "Umur " + k.age + "  ·  ⭐ " + k.stars, r.centerX(), r.top + H * 0.39f, H * 0.028f, 0xDDFFFFFF, Paint.Align.CENTER);
                 if (k.days > 1) text(c, "🔥 " + k.days + " hari", r.centerX(), r.top + H * 0.44f, H * 0.026f, 0xFFFDE68A, Paint.Align.CENTER);
+                if (k.mudah || k.baca) text(c, (k.mudah ? "🌱 Mod Mudah" : "") + (k.mudah && k.baca ? "  ·  " : "") + (k.baca ? "🔊 Dibacakan" : ""),
+                        r.centerX(), r.top + H * 0.47f, H * 0.022f, 0xFFBBF7D0, Paint.Align.CENTER);
+                if (on) text(c, "▼ ✏️ Ubah", r.centerX(), r.bottom + H * 0.045f, H * 0.03f, 0xFFFFFFFF, Paint.Align.CENTER);
             }
-            text(c, "◀▶ pilih   ·   OK masuk   ·   Menu: tukar nama & umur", W / 2, H * 0.9f, H * 0.028f, 0x99FFFFFF, Paint.Align.CENTER);
+            text(c, "◀▶ pilih   ·   OK masuk   ·   ▼ ubah nama, umur & Mod Mudah", W / 2, H * 0.9f, H * 0.03f, 0xDDFDE68A, Paint.Align.CENTER);
         }
 
         void drawHub(Canvas c) {
@@ -448,8 +480,19 @@ public class LearnActivity extends Activity {
                 LearnBank b = mode == DAILY ? daily : bank;
                 q = b.next(s, store.level(kid, s), kid.recent);
             }
-            timeLimit = mode == QUIZ ? 20f : 30f;
+            timeLimit = (mode == QUIZ ? 20f : 30f) * (kid.mudah ? 2 : 1);
             qStart = SystemClock.uptimeMillis();
+            // Mod Mudah's hint: two wrong answers fade away after a few seconds
+            hideA = hideB = -1;
+            if (q.options.length >= 4) {
+                do { hideA = rnd.nextInt(q.options.length); } while (hideA == q.answer);
+                do { hideB = rnd.nextInt(q.options.length); } while (hideB == q.answer || hideB == hideA);
+            }
+            if (kid.baca) {
+                StringBuilder say = new StringBuilder(q.prompt.startsWith("@") ? "" : q.prompt);
+                for (int i = 0; i < q.options.length; i++) say.append(". ").append("ABCD".charAt(i)).append(", ").append(q.options[i]);
+                speak(say.toString(), q.subject == LearnBank.EN);
+            }
             balloonY = 1.05f;
         }
 
@@ -485,9 +528,11 @@ public class LearnActivity extends Activity {
                 bossHp--;
                 burst(W / 2, H * 0.45f);
                 UiFxLite.ok();
+                Parent.noteRight(getContext());   // "learn first": the parents' rule counts right answers today
                 if (sound != null) sound.sfx(GameMusic.SFX_OK);
             } else {
                 if (sound != null) sound.sfx(GameMusic.SFX_WRONG);
+                if (kid.baca) speak("Jawapan yang betul ialah " + q.correct() + ". " + (q.explain == null ? "" : q.explain), q.subject == LearnBank.EN);
                 rocketShake = 0.5f;
                 rocket = Math.max(0, rocket - 0.03f);
                 hearts--;
@@ -548,6 +593,11 @@ public class LearnActivity extends Activity {
                 boolean on = i == pick && !feedback;
                 int fill = col;
                 if (feedback) fill = i == q.answer ? 0xFF16A34A : i == pick ? 0xFFDC2626 : 0x26FFFFFF;
+                if (hidden(i)) {   // Mod Mudah's hint
+                    card(c, r, 0x22FFFFFF, on);
+                    fit(c, "💡", r.centerX(), r.centerY(), bw - H * 0.1f, H * 0.035f, 0x66FFFFFF);
+                    continue;
+                }
                 card(c, r, fill, on || (feedback && (i == q.answer || i == pick)));
                 text(c, "ABCD".substring(i, i + 1), r.left + H * 0.035f, r.centerY() + H * 0.012f, H * 0.03f, 0x99FFFFFF, Paint.Align.LEFT);
                 fit(c, q.options[i], r.centerX() + H * 0.015f, r.centerY(), bw - H * 0.1f, H * 0.042f, 0xFFFFFFFF);
@@ -652,7 +702,7 @@ public class LearnActivity extends Activity {
                 case KIDS:
                     if (back) return false;
                     if (dx != 0) kidSel = (kidSel + dx + LearnStore.KIDS) % LearnStore.KIDS;
-                    if (k == KeyEvent.KEYCODE_MENU) editKid();
+                    if (k == KeyEvent.KEYCODE_MENU || k == KeyEvent.KEYCODE_DPAD_DOWN) editKid();   // the Mi remote has no Menu key
                     if (ok) { kid = store.kids[kidSel]; screen = HUB; sel = 0; }
                     return true;
                 case HUB:
@@ -703,7 +753,7 @@ public class LearnActivity extends Activity {
                         if (dy != 0) pick = (pick + 2) % 4;
                         if (pick >= n) pick = n - 1;
                     }
-                    if (ok) answer(pick);
+                    if (ok && !hidden(pick)) answer(pick);
                     return true;
                 default:
                     if (back) { screen = HUB; sel = mode; return true; }
@@ -737,6 +787,13 @@ public class LearnActivity extends Activity {
                                     for (int s = 0; s < 4; s++) k.level[s] = 0;   // start again from the new age's level
                                     store.save();
                                     d2.dismiss();
+                                    final boolean[] on = {k.mudah, k.baca};
+                                    new AlertDialog.Builder(getContext(), android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                                            .setTitle("Bantuan untuk " + k.name)
+                                            .setMultiChoiceItems(new String[]{"🌱 Mod Mudah: petunjuk, masa lebih, tahap turun bila 2 kali salah",
+                                                    "🔊 Bacakan soalan dengan suara"}, on, (d3, which, checked) -> on[which] = checked)
+                                            .setPositiveButton("Simpan", (d3, w3) -> { k.mudah = on[0]; k.baca = on[1]; store.save(); })
+                                            .show();
                                 }).show();
                     })
                     .setNegativeButton("Batal", null)
