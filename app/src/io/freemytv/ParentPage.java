@@ -126,6 +126,7 @@ final class ParentPage {
                 p.limitMin = clampInt(f.get("limitMin"), 0, 600);
                 p.bedtime = clampInt(f.get("bedtime"), -1, 23);
                 p.learnFirst = clampInt(f.get("learnFirst"), 0, 100);
+                p.learnSubject = clampInt(f.get("learnSubject"), -1, 3);
                 if (f.containsKey("newPin")) {   // empty: unchanged; "0": no PIN; 4-6 digits: the new PIN
                     String np = f.get("newPin").replaceAll("[^0-9]", "");
                     if (np.equals("0")) p.pin = "";
@@ -210,7 +211,7 @@ final class ParentPage {
         // the rules and today
         Parent p = Parent.load(app);
         o.put("rules", new JSONObject().put("limitMin", p.limitMin).put("bedtime", p.bedtime).put("learnFirst", p.learnFirst)
-                .put("pin", !p.pin.isEmpty()).put("playedMin", p.playedMs / 60_000).put("rightsToday", p.rightsToday)
+                .put("pin", !p.pin.isEmpty()).put("playedMin", p.playedMs / 60_000).put("rightsToday", p.rightsToday).put("learnSubject", p.learnSubject)
                 .put("blocked", p.blocked() == null ? "" : p.blocked()));
         // the children
         LearnStore store = new LearnStore(app);
@@ -220,7 +221,10 @@ final class ParentPage {
             for (int s = 0; s < 4; s++) lv.put(store.level(k, s));
             kids.put(new JSONObject().put("name", k.name).put("age", k.age).put("stars", k.stars).put("days", k.days)
                     .put("mudah", k.mudah).put("baca", k.baca).put("answered", k.answered).put("right", k.right)
-                    .put("mistakes", k.mistakes.size()).put("badges", k.badges.size()).put("level", lv));
+                    .put("mistakes", k.mistakes.size()).put("badges", k.badges.size()).put("level", lv)
+                    .put("today", new JSONArray(java.util.Arrays.asList(k.today[0], k.today[1], k.today[2], k.today[3])))
+                    .put("week", new JSONArray(java.util.Arrays.asList(k.week[0], k.week[1], k.week[2], k.week[3])))
+                    .put("bonus", k.bonusSubject()));
         }
         o.put("kids", kids);
         Extras x = Extras.load(app);
@@ -275,6 +279,8 @@ final class ParentPage {
             + "<option value=20>8 malam</option><option value=21>9 malam</option><option value=22>10 malam</option><option value=23>11 malam</option></select>"
             + "<label>Belajar dulu: jawapan betul dalam Kelas Bijak sebelum boleh main</label><select id=learnFirst><option value=0>Tidak perlu</option>"
             + "<option value=5>5 jawapan betul</option><option value=10>10 jawapan betul</option><option value=20>20 jawapan betul</option></select>"
+            + "<label>Subjek wajib untuk 'belajar dulu'</label><select id=learnSubject><option value=-1>Mana-mana subjek</option>"
+            + "<option value=0>Matematik</option><option value=1>Bahasa Melayu</option><option value=2>English</option><option value=3>Sains & Umum</option></select>"
             + "<label>PIN baru (4 digit, supaya anak tak boleh ubah · kosong = tak tukar · taip 0 untuk buang PIN)</label><input id=newPin inputmode=numeric maxlength=6 placeholder='contoh 1234'>"
             + "<button onclick=rules()>Simpan peraturan</button><button class=alt onclick=\"send({what:'addtime'})\">➕ Tambah 15 minit hari ini</button></div>"
             + "<div class=card><h2>🧒 Anak-anak (Kelas Bijak)</h2><div id=kids></div><button onclick=kids()>Simpan maklumat anak</button></div>"
@@ -299,7 +305,7 @@ final class ParentPage {
             + "const r=s.rules;document.getElementById('today').innerHTML=stat(r.playedMin+' minit','sudah main hari ini'+(r.limitMin?' / '+r.limitMin:''))"
             + "+'<div style=height:8px></div>'+stat(r.rightsToday,'jawapan betul Kelas Bijak hari ini')"
             + "+(r.blocked?'<div class=sub style=margin-top:8px>🔒 '+esc(r.blocked)+'</div>':'<div class=sub style=margin-top:8px>✅ Permainan dibuka</div>');"
-            + "document.getElementById('limitMin').value=r.limitMin;document.getElementById('bedtime').value=r.bedtime;document.getElementById('learnFirst').value=r.learnFirst;"
+            + "document.getElementById('limitMin').value=r.limitMin;document.getElementById('bedtime').value=r.bedtime;document.getElementById('learnFirst').value=r.learnFirst;document.getElementById('learnSubject').value=r.learnSubject;"
             + "document.getElementById('pinbox').style.display=r.pin?'block':'none';"
             + "let h='';s.kids.forEach((k,i)=>{const acc=k.answered?Math.round(100*k.right/k.answered):0;"
             + "h+='<div class=kid><div class=row><div><label>Nama</label><input id=name'+i+' value=\"'+esc(k.name)+'\"></div>'"
@@ -308,10 +314,12 @@ final class ParentPage {
             + "+'<div class=chk><input type=checkbox id=baca'+i+(k.baca?' checked':'')+'><span>Bacakan soalan dengan suara</span></div>'"
             + "+'<div class=sub style=margin-top:8px>⭐ '+k.stars+' bintang · 🔥 '+k.days+' hari · '+k.answered+' dijawab · '+acc+'% betul · '+k.mistakes+' perlu ulang kaji</div>'"
             + "+'<div class=sub>Tahap: '+k.level.map((l,j)=>SUB[j]+' '+l).join(' · ')+'</div>'"
+            + "+'<div class=sub>Hari ini: '+k.today.map((n,j)=>SUB[j]+' '+n).join(' · ')+'<br>Minggu ini: '+k.week.map((n,j)=>SUB[j]+' '+n).join(' · ')"
+            + "+'<br>✨ Bintang ×2 hari ini: '+SUB[k.bonus]+'</div>'"
             + "+'<div class=bar><i style=width:'+acc+'%></i></div></div>'});document.getElementById('kids').innerHTML=h;}"
             + "async function send(o){if(S&&S.rules.pin)o.pin=v('pin');const b=new URLSearchParams(o);"
             + "try{const r=await fetch(P+'/set',{method:'POST',body:b});const s=await r.json();show(s);toast(s.result||'Siap')}catch(e){toast('Tidak dapat sambung ke TV. Buka semula kod QR.')}}"
-            + "function rules(){send({what:'rules',limitMin:v('limitMin'),bedtime:v('bedtime'),learnFirst:v('learnFirst'),newPin:v('newPin')})}"
+            + "function rules(){send({what:'rules',limitMin:v('limitMin'),bedtime:v('bedtime'),learnFirst:v('learnFirst'),learnSubject:v('learnSubject'),newPin:v('newPin')})}"
             + "function kids(){const o={what:'kids'};S.kids.forEach((k,i)=>{o['name'+i]=v('name'+i);o['age'+i]=v('age'+i);o['mudah'+i]=c('mudah'+i);o['baca'+i]=c('baca'+i)});send(o)}"
             + "fetch(P+'/state').then(r=>r.json()).then(show).catch(()=>toast('Tidak dapat sambung ke TV'));"
             + "setInterval(()=>fetch(P+'/state').then(r=>r.json()).then(s=>{S=s;const d=s.device;}).catch(()=>{}),30000);"

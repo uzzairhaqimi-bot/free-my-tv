@@ -19,6 +19,8 @@ final class Parent {
     int limitMin;        // 0: no limit
     int bedtime = -1;    // hour (0-23), -1: none
     int learnFirst;      // right answers needed today, 0: off
+    int learnSubject = -1;   // only answers in this subject count (0 Matematik, 1 BM, 2 English, 3 Sains), -1: any
+    final int[] rightsBySubject = new int[4];
     String pin = "";
     // today's counters
     int day;
@@ -49,12 +51,15 @@ final class Parent {
             p.day = o.optInt("day", 0);
             p.playedMs = o.optLong("playedMs", 0);
             p.rightsToday = o.optInt("rightsToday", 0);
+            p.learnSubject = o.optInt("learnSubject", -1);
+            org.json.JSONArray rb = o.optJSONArray("rightsBySubject");
+            for (int s = 0; rb != null && s < 4 && s < rb.length(); s++) p.rightsBySubject[s] = rb.getInt(s);
             p.message = o.optString("message", "");
             p.messageAt = o.optLong("messageAt", 0);
         } catch (Exception ignored) {
             // no file yet: no rules
         }
-        if (p.day != today()) { p.day = today(); p.playedMs = 0; p.rightsToday = 0; }
+        if (p.day != today()) { p.day = today(); p.playedMs = 0; p.rightsToday = 0; java.util.Arrays.fill(p.rightsBySubject, 0); }
         return p;
     }
 
@@ -63,7 +68,8 @@ final class Parent {
             JSONObject o = new JSONObject();
             o.put("limitMin", limitMin).put("bedtime", bedtime).put("learnFirst", learnFirst).put("pin", pin)
                     .put("day", day).put("playedMs", playedMs).put("rightsToday", rightsToday)
-                    .put("message", message).put("messageAt", messageAt);
+                    .put("message", message).put("messageAt", messageAt).put("learnSubject", learnSubject)
+                    .put("rightsBySubject", new org.json.JSONArray(java.util.Arrays.asList(rightsBySubject[0], rightsBySubject[1], rightsBySubject[2], rightsBySubject[3])));
             File tmp = new File(c.getFilesDir(), "parent.json.tmp");
             try (FileOutputStream out = new FileOutputStream(tmp)) { out.write(o.toString().getBytes("UTF-8")); }
             if (!tmp.renameTo(file(c))) AppLog.w("parent: could not save");
@@ -79,8 +85,10 @@ final class Parent {
             boolean late = bedtime >= 6 ? h >= bedtime || h < 6 : h >= bedtime && h < 6;
             if (late) return "Sudah waktu tidur 🌙  Permainan dibuka semula pukul 6 pagi.";
         }
-        if (learnFirst > 0 && rightsToday < learnFirst)
-            return "Belajar dulu! Jawab " + (learnFirst - rightsToday) + " soalan lagi dengan betul dalam Kelas Bijak, kemudian boleh main. 📚";
+        int got = learnSubject >= 0 ? rightsBySubject[learnSubject] : rightsToday;
+        if (learnFirst > 0 && got < learnFirst)
+            return "Belajar dulu! Jawab " + (learnFirst - got) + " soalan " + (learnSubject >= 0 ? LearnBank.SUBJECTS[learnSubject] + " " : "")
+                    + "lagi dengan betul dalam Kelas Bijak, kemudian boleh main. 📚";
         if (limitMin > 0 && playedMs >= limitMin * 60_000L) return "Masa main hari ini sudah habis ⏰  Jumpa esok!";
         return null;
     }
@@ -97,9 +105,10 @@ final class Parent {
         p.save(c);
     }
 
-    static void noteRight(Context c) {
+    static void noteRight(Context c, int subject) {
         Parent p = load(c);
         p.rightsToday++;
+        if (subject >= 0 && subject < 4) p.rightsBySubject[subject]++;
         p.save(c);
     }
 }

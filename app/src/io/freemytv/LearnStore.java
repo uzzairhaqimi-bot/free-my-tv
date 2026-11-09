@@ -38,6 +38,24 @@ final class LearnStore {
         boolean mudah, baca;
         final int[] streakWrong = new int[4];
         int answered, right;   // all time, for the parents' page
+        final int[] today = new int[4], week = new int[4];   // answers per subject today and this week
+        int todayKey, weekKey;
+
+        /** The subject played least today (ties: least this week): its stars count double. */
+        int bonusSubject() {
+            roll();
+            int best = 0;
+            for (int s = 1; s < 4; s++) if (today[s] < today[best] || today[s] == today[best] && week[s] < week[best]) best = s;
+            return best;
+        }
+
+        void roll() {
+            java.util.Calendar c = java.util.Calendar.getInstance();
+            int d = c.get(java.util.Calendar.YEAR) * 1000 + c.get(java.util.Calendar.DAY_OF_YEAR);
+            int w = c.get(java.util.Calendar.YEAR) * 100 + c.get(java.util.Calendar.WEEK_OF_YEAR);
+            if (d != todayKey) { todayKey = d; java.util.Arrays.fill(today, 0); }
+            if (w != weekKey) { weekKey = w; java.util.Arrays.fill(week, 0); }
+        }
         final LinkedHashSet<String> recent = new LinkedHashSet<>();
         final List<String> mistakes = new ArrayList<>();
         final Set<String> badges = new LinkedHashSet<>();
@@ -71,6 +89,10 @@ final class LearnStore {
         int s = q.subject;
         if (k.level[s] == 0) k.level[s] = k.startLevel();
         k.answered++;
+        int bonus = k.bonusSubject();   // before this answer counts
+        k.today[s]++;
+        k.week[s]++;
+        if (right && s == bonus) k.stars += 1 + (q.level >= 5 ? 1 : 0);   // double stars for the subject played least
         if (right) {
             k.right++;
             k.streakWrong[s] = 0;
@@ -121,6 +143,11 @@ final class LearnStore {
                 k.mudah = o.optBoolean("mudah", k.age <= 8);
                 k.baca = o.optBoolean("baca", k.age <= 9);
                 k.answered = o.optInt("answered", 0);
+                k.todayKey = o.optInt("todayKey", 0);
+                k.weekKey = o.optInt("weekKey", 0);
+                JSONArray td = o.optJSONArray("today"), wk = o.optJSONArray("week");
+                for (int s = 0; s < 4; s++) { if (td != null && s < td.length()) k.today[s] = td.getInt(s); if (wk != null && s < wk.length()) k.week[s] = wk.getInt(s); }
+                k.roll();
                 k.right = o.optInt("right", 0);
                 JSONArray lv = o.optJSONArray("level");
                 for (int s = 0; lv != null && s < 4 && s < lv.length(); s++) k.level[s] = lv.getInt(s);
@@ -147,6 +174,12 @@ final class LearnStore {
                 o.put("mudah", k.mudah);
                 o.put("baca", k.baca);
                 o.put("answered", k.answered);
+                o.put("todayKey", k.todayKey);
+                o.put("weekKey", k.weekKey);
+                JSONArray td = new JSONArray(), wk = new JSONArray();
+                for (int s = 0; s < 4; s++) { td.put(k.today[s]); wk.put(k.week[s]); }
+                o.put("today", td);
+                o.put("week", wk);
                 o.put("right", k.right);
                 JSONArray lv = new JSONArray();
                 for (int v : k.level) lv.put(v);

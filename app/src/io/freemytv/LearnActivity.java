@@ -306,6 +306,8 @@ public class LearnActivity extends Activity {
             owl(c, W * 0.1f, H * 0.14f, H * 0.08f, LearnStore.COLORS[kidSel], 0);
             text(c, "Hai, " + kid.name + "!", W * 0.17f, H * 0.12f, H * 0.05f, 0xFFFFFFFF, Paint.Align.LEFT);
             text(c, "⭐ " + kid.stars + "    🔥 " + kid.days + " hari    🏅 " + kid.badges.size() + " lencana", W * 0.17f, H * 0.18f, H * 0.03f, 0xDDFFFFFF, Paint.Align.LEFT);
+            int bonus = kid.bonusSubject();
+            text(c, "✨ Hari ini: " + LearnBank.SUBJECTS[bonus] + " = bintang ×2!", W * 0.17f, H * 0.225f, H * 0.03f * (1 + 0.04f * (float) Math.sin(t * 4)), 0xFFFDE047, Paint.Align.LEFT);
             for (int s = 0; s < 4; s++) {
                 float x = W * (0.6f + s * 0.095f);
                 text(c, SUBJ_ICON[s], x, H * 0.11f, H * 0.03f, SUBJ_COL[s], Paint.Align.CENTER);
@@ -476,7 +478,8 @@ public class LearnActivity extends Activity {
                 if (q == null) kid.mistakes.remove(key);
             }
             if (q == null) {
-                int s = mode == DAILY || mode == REVIEW ? qNo % 4 : subject;
+                // the daily challenge asks more of the subject played least (every other question)
+                int s = mode == DAILY ? (qNo % 2 == 0 ? kid.bonusSubject() : qNo % 4) : mode == REVIEW ? qNo % 4 : subject;
                 LearnBank b = mode == DAILY ? daily : bank;
                 q = b.next(s, store.level(kid, s), kid.recent);
             }
@@ -528,7 +531,7 @@ public class LearnActivity extends Activity {
                 bossHp--;
                 burst(W / 2, H * 0.45f);
                 UiFxLite.ok();
-                Parent.noteRight(getContext());   // "learn first": the parents' rule counts right answers today
+                Parent.noteRight(getContext(), q.subject);   // "learn first": the parents' rule counts right answers today
                 if (sound != null) sound.sfx(GameMusic.SFX_OK);
             } else {
                 if (sound != null) sound.sfx(GameMusic.SFX_WRONG);
